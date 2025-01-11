@@ -1,0 +1,6 @@
+BasedOnStyle: Chromium
+Standard: Cpp11
+AccessModifierOffset: -2
+BinPackArguments: true
+BinPackParameters: true
+ColumnLimit: 100
