@@ -29,5 +29,12 @@ Currently only the standard V.Smile controller is supported.
 | Green    | V          | LB                                |
 | Joystick | Arrow keys | D-pad or left analog stick
 
+## Build instructions
 
+* Required dependencies: SDL2, OpenGL
+* Supported compilers: GCC or Clang with C++20 support
 
+### Steps
+1. Create a `build` directory and change working directory to it.
+2. Run `cmake .. -DCMAKE_BUILD_TYPE=Release`.
+3. You should now have a working `veesem` binary.
