@@ -95,7 +95,6 @@ private:
   Irq& irq_;
   int cur_scanline_ = 0;
   SimpleConfigurableClock scanline_clock_;
-  int cycles_left_ = 0;
 
   int64_t frame_count_ = 0;
 

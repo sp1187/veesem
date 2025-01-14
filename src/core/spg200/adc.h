@@ -46,7 +46,6 @@ private:
   } data_;
 
   DivisibleClock<16, 1> adc_clock_;
-  int counter_;
   int active_channel_;
 
   Irq& irq_;
