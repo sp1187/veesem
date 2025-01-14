@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include <SDL2/SDL_endian.h>
+#include <SDL_endian.h>
 
 #include "core/spg200/types.h"
 #include "ui/ui.h"

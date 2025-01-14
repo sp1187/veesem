@@ -55,7 +55,7 @@ target_link_libraries(veesem_ui
   veesem_core
   imgui
   SDL2::SDL2
-  OpenGL::OpenGL
+  OpenGL::GL
 )
 target_include_directories(veesem_ui PUBLIC .)
 

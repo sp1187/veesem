@@ -20,5 +20,5 @@ target_include_directories(imgui PUBLIC .)
 
 target_link_libraries(imgui
   SDL2::SDL2
-  OpenGL::OpenGL
+  OpenGL::GL
 )
