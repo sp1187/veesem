@@ -2,6 +2,9 @@
 
 veesem is an experimental V.Smile emulator. Game compatibility is generally quite good from what I have tested so far, though more features, a more advanced UI and better accuracy are future targets.
 
+![In-game screenshot](screenshots/nallepuh.png)
+![Boot intro screenshot](screenshots/bootintro.png)
+
 ## Command line options
 
 * Usage: `veesem [OPTIONS] CARTROM`
@@ -28,6 +31,17 @@ Currently only the standard V.Smile controller is supported.
 | Blue     | C          | RB                                |
 | Green    | V          | LB                                |
 | Joystick | Arrow keys | D-pad or left analog stick
+
+### Keyboard shortcuts
+
+| Key        | Action                                |
+| ---------- | ------------------------------------- |
+| Esc        | Exit veesem                           |
+| Tab (hold) | Unlock framerate                      |
+| F1         | Simulate console ON button press      |
+| F2         | Simulate console OFF button press     |
+| F3         | Simulate console RESTART button press |
+| F11        | Toggle fullscreen                     |
 
 ## Build instructions
 
