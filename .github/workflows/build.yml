@@ -18,14 +18,54 @@ jobs:
         sudo apt-get install libsdl2-dev
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel $(nproc)
 
-    - name: Save executable
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: veesem
+        name: veesem-ubuntu
         path: |
-          ${{ github.workspace }}/build/veesem
+          build/veesem
+
+  build-windows:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        install: make
+          mingw-w64-ucrt-x86_64-cmake
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-ucrt-x86_64-SDL2
+
+    - name: Configure CMake
+      run: cmake
+        -B build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -G"Unix Makefiles"
+        -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++ -static -s"
+
+    - name: Build
+      run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel $(nproc)
+
+    - name: Collect artifacts
+      run: |
+        mkdir -p upload/
+        cp /ucrt64/bin/SDL2.dll upload/
+        cp build/veesem.exe upload/
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: veesem-windows
+        path: |
+          upload
