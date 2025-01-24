@@ -51,6 +51,10 @@ std::span<uint16_t> VSmile::GetAudio() {
   return spg200_.GetAudio();
 }
 
+void VSmile::SetPpuViewSettings(PpuViewSettings& ppu_view_settings) {
+  spg200_.SetPpuViewSettings(ppu_view_settings);
+}
+
 VSmile::JoyLedStatus VSmile::GetControllerLed() {
   return io_.joy_.GetLeds();
 }

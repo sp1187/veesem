@@ -1,9 +1,5 @@
 #include <algorithm>
-#include <chrono>
-#include <fstream>
 #include <iostream>
-#include <iterator>
-#include <thread>
 #include <vector>
 
 #include <SDL.h>
@@ -26,6 +22,9 @@ static struct UiSettings {
   bool show_leds = false;
   bool show_fps = false;
   bool bilinear = true;
+  bool show_ppu_view_settings_window = true;
+
+  PpuViewSettings ppu_view_settings = {};
 } ui;
 
 static void SdlAudioCallback(void* audio_stream, unsigned char* output, int len) {
@@ -87,7 +86,6 @@ static VSmile::JoyInput ReadControllerFromKeyboard() {
 }
 
 static bool ImguiInit(GraphicsState& graphics_state) {
-  /* ImGui-initialisering */
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGui::StyleColorsDark();
@@ -146,15 +144,15 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
   if (SDL_GetMouseFocus() && !ui.fullscreen && ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Emulation")) {
       ImGui::MenuItem("Run", "", &ui.run_emulation);
-      ImGui::MenuItem("Unlock framerate", "", &ui.unlock_framerate);
-      ImGui::MenuItem("Frame advance", "", &ui.frame_advance);
-      if (ImGui::MenuItem("Hard reset")) {
+      ImGui::MenuItem("Unlock Framerate", "", &ui.unlock_framerate);
+      ImGui::MenuItem("Frame Advance", "", &ui.frame_advance);
+      if (ImGui::MenuItem("Hard Reset")) {
         vsmile.Reset();
       }
       ImGui::Separator();
-      ImGui::MenuItem("ON button", "F1", &ui.on_button);
-      ImGui::MenuItem("OFF button", "F2", &ui.off_button);
-      ImGui::MenuItem("RESTART button", "F3", &ui.restart_button);
+      ImGui::MenuItem("ON Button", "F1", &ui.on_button);
+      ImGui::MenuItem("OFF Button", "F2", &ui.off_button);
+      ImGui::MenuItem("RESTART Button", "F3", &ui.restart_button);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("View")) {
@@ -162,7 +160,7 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
       if (ImGui::MenuItem("Fullscreen", "F11", &ui.fullscreen)) {
         graphics_state.SetFullscreen(ui.fullscreen);
       }
-      if (ImGui::BeginMenu("Change size")) {
+      if (ImGui::BeginMenu("Change Size")) {
         if (ImGui::MenuItem("Change to 1x")) {
           graphics_state.Resize(320, 240);
         }
@@ -180,6 +178,8 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
       ImGui::Separator();
       ImGui::MenuItem("Show LEDs", "", &ui.show_leds);
       ImGui::MenuItem("Show FPS", "", &ui.show_fps);
+      ImGui::Separator();
+      ImGui::MenuItem("Show PPU View Settings", "", &ui.show_ppu_view_settings_window);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help")) {
@@ -189,6 +189,28 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
+  }
+  if (ui.show_ppu_view_settings_window) {
+    ImGui::Begin("PPU View", &ui.show_ppu_view_settings_window, ImGuiWindowFlags_AlwaysAutoResize);
+    bool updated = false;
+    updated |= ImGui::Checkbox("Background 1", &ui.ppu_view_settings.show_bg[0]);
+    updated |= ImGui::Checkbox("Background 2", &ui.ppu_view_settings.show_bg[1]);
+    ImGui::Separator();
+    updated |= ImGui::Checkbox("All Sprites", &ui.ppu_view_settings.show_sprites);
+    if (!ui.ppu_view_settings.show_sprites) {
+      ImGui::BeginDisabled();
+    }
+    updated |= ImGui::Checkbox("Layer 0 Sprites", &ui.ppu_view_settings.show_sprites_in_layer[0]);
+    updated |= ImGui::Checkbox("Layer 1 Sprites", &ui.ppu_view_settings.show_sprites_in_layer[1]);
+    updated |= ImGui::Checkbox("Layer 2 Sprites", &ui.ppu_view_settings.show_sprites_in_layer[2]);
+    updated |= ImGui::Checkbox("Layer 3 Sprites", &ui.ppu_view_settings.show_sprites_in_layer[3]);
+    if (!ui.ppu_view_settings.show_sprites) {
+      ImGui::EndDisabled();
+    }
+    if (updated) {
+      vsmile.SetPpuViewSettings(ui.ppu_view_settings);
+    }
+    ImGui::End();
   }
 
   if (ui.show_leds) {
@@ -241,7 +263,6 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sysrom,
   ui.show_fps = show_fps;
 
   while (!quit) {
-    auto start = std::chrono::steady_clock::now();
     while (SDL_PollEvent(&e) != 0) {
       ImGui_ImplSDL2_ProcessEvent(&e);
       switch (e.type) {
@@ -289,8 +310,7 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sysrom,
       vsmile->RunFrame();
 
       auto ab = vsmile->GetAudio();
-      SDL_AudioStreamPut(audio_stream, ab.data(),
-                         ab.size() * sizeof(uint16_t));  // separat metod i SDL-klass
+      SDL_AudioStreamPut(audio_stream, ab.data(), ab.size() * sizeof(uint16_t));
     }
 
     auto fb = vsmile->GetPicture();
@@ -299,10 +319,6 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sysrom,
     ImGui::Render();
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
     graphics_state.SwapWindow();
-
-    using frame_period = std::chrono::duration<long long, std::ratio<1, 50>>;
-    auto next = start + frame_period{1};
-    // std::this_thread::sleep_until(next);
 
     while (SDL_AudioStreamAvailable(audio_stream) > 0.1 * 48000 * sizeof(int16_t)) {
       // TODO: better way to sync?

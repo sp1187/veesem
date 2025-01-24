@@ -1,16 +1,7 @@
 #include "ppu.h"
 
 #include "bus_interface.h"
-#include "cpu.h"
 #include "irq.h"
-
-#if 1
-#define CYCLES_PER_SCANLINE (432 * 4)
-#define SCANLINES 312
-#else
-#define CYCLES_PER_SCANLINE (429 * 4)
-#define SCANLINES 262
-#endif
 
 namespace {
 inline addr_t CalculateLineSegmentAddr(word_t segment_ptr, int ch, int tile_y, int tile_width,
@@ -96,6 +87,10 @@ bool Ppu::RunCycles(int cycles) {
   }
 
   return false;
+}
+
+void Ppu::SetViewSettings(PpuViewSettings& view_settings) {
+  view_settings_ = view_settings;
 }
 
 word_t Ppu::GetBgXScroll(int bg_index) {
@@ -355,13 +350,16 @@ void Ppu::DrawLine(int scanline) {
   framebuffer_[scanline].fill({0});
 
   for (unsigned layer = 0; layer < 4; layer++) {
-    for (unsigned bg_index = 0; bg_index < 2; bg_index++) {
-      if (bg_data_[bg_index].ctrl.enabled && bg_data_[bg_index].attr.depth == layer) {
-        DrawBgScanline(bg_index, scanline);
+    for (unsigned bg = 0; bg < 2; bg++) {
+      if (!view_settings_.show_bg[bg])
+        continue;
+      if (bg_data_[bg].ctrl.enabled && bg_data_[bg].attr.depth == layer) {
+        DrawBgScanline(bg, scanline);
       }
     }
 
-    if (sprite_enable_) {
+    if (sprite_enable_ && view_settings_.show_sprites &&
+        view_settings_.show_sprites_in_layer[layer]) {
       for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
         const auto& sprite = sprite_data_[sprite_index];
         if (sprite.ch && !sprite.attr.blend && sprite.attr.depth == layer) {
@@ -371,7 +369,7 @@ void Ppu::DrawLine(int scanline) {
     }
   }
   // write blended sprites last
-  if (sprite_enable_) {
+  if (sprite_enable_ && view_settings_.show_sprites) {
     for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
       const auto& sprite = sprite_data_[sprite_index];
       if (sprite.ch && sprite.attr.blend) {

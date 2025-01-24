@@ -10,6 +10,7 @@
 #include "irq.h"
 #include "ppu.h"
 #include "random.h"
+#include "settings.h"
 #include "spu.h"
 #include "timer.h"
 #include "types.h"
@@ -32,6 +33,8 @@ public:
 
   std::span<uint8_t> GetPicture() const;
   std::span<uint16_t> GetAudio();
+
+  void SetPpuViewSettings(PpuViewSettings& ppu_view_settings);
 
   // BusInterface
   word_t ReadWord(addr_t addr) override;

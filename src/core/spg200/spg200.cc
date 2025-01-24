@@ -58,6 +58,10 @@ std::span<uint16_t> Spg200::GetAudio() {
   return spu_.GetAudio();
 }
 
+void Spg200::SetPpuViewSettings(PpuViewSettings& ppu_view_settings) {
+  ppu_.SetViewSettings(ppu_view_settings);
+}
+
 void Spg200::UartTx(uint8_t value) {
   uart_.RxStart(value);
 }

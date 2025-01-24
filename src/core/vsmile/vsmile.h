@@ -2,6 +2,7 @@
 
 #include "core/common.h"
 
+#include "core/spg200/settings.h"
 #include "core/spg200/spg200.h"
 #include "core/spg200/spg200_io.h"
 #include "core/spg200/types.h"
@@ -27,6 +28,8 @@ public:
 
   std::span<uint8_t> GetPicture() const;
   std::span<uint16_t> GetAudio();
+
+  void SetPpuViewSettings(PpuViewSettings& ppu_view_settings);
 
   void UpdateJoystick(const JoyInput& joy_input);
   JoyLedStatus GetControllerLed();

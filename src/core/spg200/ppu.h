@@ -1,13 +1,12 @@
 #pragma once
 
 #include <array>
-#include <memory>
 
 #include "core/common.h"
+#include "settings.h"
 #include "types.h"
 
 class BusInterface;
-class Cpu;
 class Irq;
 
 class Ppu {
@@ -16,6 +15,7 @@ public:
 
   bool RunCycles(int cycles);
   void Reset();
+  void SetViewSettings(PpuViewSettings& view_settings);
 
   word_t GetBgXScroll(int bg_index);
   void SetBgXScroll(int bg_index, word_t value);
@@ -193,4 +193,6 @@ private:
   uint16_t sprite_dma_length_ = 0;
   uint16_t irq_vpos_ = 0x1ff;
   uint16_t irq_hpos_ = 0x1ff;
+
+  PpuViewSettings view_settings_;
 };
