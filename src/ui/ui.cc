@@ -22,7 +22,7 @@ static struct UiSettings {
   bool show_leds = false;
   bool show_fps = false;
   bool bilinear = true;
-  bool show_ppu_view_settings_window = true;
+  bool show_ppu_view_settings_window = false;
 
   PpuViewSettings ppu_view_settings = {};
 } ui;
