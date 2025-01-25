@@ -27,7 +27,6 @@ void Spu::Reset() {
   channel_env_rampdown_.reset();
   channel_stop_.reset();
   channel_zero_cross_.reset();
-  channel_status_.reset();
   channel_repeat_.reset();
   channel_env_mode_.reset();
   channel_tone_release_.reset();
@@ -78,7 +77,7 @@ void Spu::GenerateSample() {
   int32_t right_out = 0;
   for (int channel_index = 0; channel_index < 16; channel_index++) {
     const auto& channel = channel_data_[channel_index];
-    if (!channel_status_[channel_index])
+    if (!channel_enable_[channel_index] || channel_stop_[channel_index])
       continue;
     TickChannel(channel_index);
 
@@ -111,7 +110,7 @@ void Spu::GenerateSample() {
 
 void Spu::UpdateEnvelopes() {
   for (int channel_index = 0; channel_index < 16; channel_index++) {
-    if (!channel_status_[channel_index])
+    if (!channel_enable_[channel_index] || channel_stop_[channel_index])
       continue;
     TickChannelEnvelope(channel_index);
     TickChannelPitchbend(channel_index);
@@ -120,7 +119,7 @@ void Spu::UpdateEnvelopes() {
 
 void Spu::UpdateRampdowns() {
   for (int channel_index = 0; channel_index < 16; channel_index++) {
-    if (!channel_status_[channel_index])
+    if (!channel_enable_[channel_index] || channel_stop_[channel_index])
       continue;
     TickChannelRampdown(channel_index);
   }
@@ -294,8 +293,6 @@ void Spu::TickChannelRampdown(int channel_index) {
 void Spu::StartChannel(int channel_index) {
   auto& channel = channel_data_[channel_index];
 
-  channel_status_[channel_index] = true;
-
   channel.wave_shift = 0;
   channel.adpcm.Reset();
   if (!channel_env_mode_[channel_index]) {
@@ -304,7 +301,6 @@ void Spu::StartChannel(int channel_index) {
 }
 
 void Spu::StopChannel(int channel_index) {
-  channel_status_[channel_index] = false;
   channel_stop_[channel_index] = true;
 
   channel_tone_release_[channel_index] = false;
@@ -668,7 +664,7 @@ void Spu::SetControl(word_t value) {
 }
 
 word_t Spu::GetChannelStatus() {
-  return channel_status_.to_ulong();
+  return channel_enable_.to_ulong() & ~channel_stop_.to_ulong();
 }
 
 void Spu::SetWaveInLeft(word_t value) {}

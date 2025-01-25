@@ -209,7 +209,6 @@ private:
   std::bitset<16> channel_env_rampdown_;
   std::bitset<16> channel_stop_;
   std::bitset<16> channel_zero_cross_;
-  std::bitset<16> channel_status_;
   std::bitset<16> channel_repeat_;
   std::bitset<16> channel_env_mode_;
   std::bitset<16> channel_tone_release_;
