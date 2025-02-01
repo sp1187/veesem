@@ -284,8 +284,6 @@ void Spu::TickChannelRampdown(int channel_index) {
 
     if (channel.envelope_data.edd == 0) {
       StopChannel(channel_index);
-      channel_env_rampdown_[channel_index] = false;
-      channel_tone_release_[channel_index] = false;
     }
   }
 }
@@ -624,7 +622,8 @@ word_t Spu::GetEnvRampdown() {
 }
 
 void Spu::SetEnvRampdown(word_t value) {
-  channel_env_rampdown_ = value;
+  uint16_t status = channel_enable_.to_ulong() & ~channel_stop_.to_ulong();
+  channel_env_rampdown_ = value & status;
 }
 
 word_t Spu::GetChannelStop() {
