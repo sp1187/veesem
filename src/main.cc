@@ -16,6 +16,7 @@ void PrintUsage(std::string exec_name) {
             << "  -sysrom ROM  Provide system ROM" << std::endl
             << "  -pal         Use PAL video timing (default)" << std::endl
             << "  -ntsc        Use NTSC video timing" << std::endl
+            << "  -art         Emulate CSB2 cartridge RAM (used by V.Smile Art Studio)" << std::endl
             << std::endl
             << "  -leds        Show controller LEDs at startup" << std::endl
             << "  -fps         Show emulation FPS at startup" << std::endl;
@@ -31,6 +32,7 @@ int main(int argc, char** argv) {
     return 0;
   }
   bool read_flags = true;
+  bool has_art_ram = false;
   bool show_leds = false;
   bool show_fps = false;
   VideoTiming video_timing = VideoTiming::PAL;
@@ -49,6 +51,8 @@ int main(int argc, char** argv) {
         video_timing = VideoTiming::NTSC;
       } else if (arg == "-pal") {
         video_timing = VideoTiming::PAL;
+      } else if (arg == "-art") {
+        has_art_ram = true;
       } else if (arg == "-leds") {
         show_leds = true;
       } else if (arg == "-fps") {
@@ -101,5 +105,6 @@ int main(int argc, char** argv) {
   std::transform(cartrom->begin(), cartrom->end(), cartrom->begin(),
                  [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
 
-  return RunEmulation(std::move(sysrom), std::move(cartrom), video_timing, show_leds, show_fps);
+  return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_ram, video_timing, show_leds,
+                      show_fps);
 }

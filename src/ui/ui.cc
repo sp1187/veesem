@@ -221,15 +221,16 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
   }
 }
 
-int RunEmulation(std::unique_ptr<VSmile::SysRomType> sysrom,
-                 std::unique_ptr<VSmile::CartRomType> cartrom, VideoTiming video_timing,
-                 bool show_leds, bool show_fps) {
+int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
+                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_ram,
+                 VideoTiming video_timing, bool show_leds, bool show_fps) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
     std::cerr << "Unable to initialize SDL";
     return EXIT_FAILURE;
   }
 
-  auto vsmile = std::make_unique<VSmile>(std::move(cartrom), std::move(sysrom), video_timing);
+  auto vsmile =
+      std::make_unique<VSmile>(std::move(sys_rom), std::move(cart_rom), has_art_ram, video_timing);
   vsmile->Reset();
 
   GraphicsState graphics_state;

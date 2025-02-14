@@ -13,9 +13,9 @@
 #define VSMILE_REGION 0x4
 #define VSMILE_LOGO true
 
-VSmile::VSmile(std::unique_ptr<CartRomType> cart_rom, std::unique_ptr<SysRomType> sys_rom,
-               VideoTiming video_timing)
-    : io_(std::move(cart_rom), std::move(sys_rom), *this),
+VSmile::VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
+               bool has_art_ram, VideoTiming video_timing)
+    : io_(std::move(sys_rom), std::move(cart_rom), has_art_ram, *this),
       spg200_(video_timing, io_),
       joy_send_(*this, 0) {}
 
@@ -35,6 +35,10 @@ void VSmile::Reset() {
 
   io_.rts_[0] = io_.rts_[1] = true;
   io_.cts_[0] = io_.cts_[1] = false;
+
+  if (io_.has_art_ram_) {
+    io_.art_ram_->fill(0);
+  }
 
   io_.joy_.Reset();
 
@@ -75,9 +79,16 @@ void VSmile::UpdateRestartButton(bool pressed) {
   io_.restart_button_pressed_ = pressed;
 }
 
-VSmile::Io::Io(std::unique_ptr<CartRomType> cart_rom, std::unique_ptr<SysRomType> sys_rom,
-               VSmile& vsmile)
-    : cart_rom_(std::move(cart_rom)), sys_rom_(std::move(sys_rom)), joy_(vsmile.joy_send_) {}
+VSmile::Io::Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
+               bool has_art_ram, VSmile& vsmile)
+    : sys_rom_(std::move(sys_rom)),
+      cart_rom_(std::move(cart_rom)),
+      has_art_ram_(has_art_ram),
+      joy_(vsmile.joy_send_) {
+  if (has_art_ram_) {
+    art_ram_ = std::make_unique<std::array<int, 0x10000>>();
+  }
+}
 
 void VSmile::Io::RunCycles(int cycles) {
   joy_.RunCycles(cycles);
@@ -140,11 +151,21 @@ word_t VSmile::Io::ReadCsb1(addr_t addr) {
 void VSmile::Io::WriteCsb1(addr_t addr, word_t value) {}
 
 word_t VSmile::Io::ReadCsb2(addr_t addr) {
-  return art_ram_[addr & 0xffff];
+  if (has_art_ram_) {
+    // In-cartridge ROM used for the drawing area buffer in V.Smile Art Studio
+    return (*art_ram_)[addr & 0xffff];
+  }
+  // Some games have a dual-ROM cartridge configuration with a larger 4 MiB ROM
+  // connected to CSB0 and CSB1, and a smaller 2 MiB ROM connected to CSB2.
+  // This code handles combined ROM dumps where the CSB2 rom is appended to the
+  // larger ROM.
+  return (*cart_rom_)[addr + 0x200000];
 }
 
 void VSmile::Io::WriteCsb2(addr_t addr, word_t value) {
-  art_ram_[addr & 0xffff] = value;
+  if (has_art_ram_) {
+    (*art_ram_)[addr & 0xffff] = value;
+  }
 }
 
 word_t VSmile::Io::ReadCsb3(addr_t addr) {
