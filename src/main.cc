@@ -13,13 +13,18 @@ void PrintUsage(std::string exec_name) {
   std::cout << "Usage: " << exec_name << " [OPTIONS] [SYSROM] CARTROM" << std::endl
             << std::endl
             << "Options:" << std::endl
-            << "  -sysrom ROM  Provide system ROM" << std::endl
-            << "  -pal         Use PAL video timing (default)" << std::endl
-            << "  -ntsc        Use NTSC video timing" << std::endl
-            << "  -art         Emulate CSB2 cartridge RAM (used by V.Smile Art Studio)" << std::endl
+            << "  -sysrom ROM       Provide system ROM" << std::endl
+            << "  -pal              Use PAL video timing (default)" << std::endl
+            << "  -ntsc             Use NTSC video timing" << std::endl
+            << "  -art              Emulate CSB2 cartridge NVRAM (used by V.Smile Art Studio)"
             << std::endl
-            << "  -leds        Show controller LEDs at startup" << std::endl
-            << "  -fps         Show emulation FPS at startup" << std::endl;
+            << "  -art-nvram FILE   Provide path to CSB2 cartridge NVRAM for persistent saving"
+            << std::endl
+            << "                   Setting this value automatically enables CSB2 NVRAM emulation"
+            << std::endl
+            << std::endl
+            << "  -leds            Show controller LEDs at startup" << std::endl
+            << "  -fps             Show emulation FPS at startup" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -32,27 +37,34 @@ int main(int argc, char** argv) {
     return 0;
   }
   bool read_flags = true;
-  bool has_art_ram = false;
+  bool has_art_nvram = false;
   bool show_leds = false;
   bool show_fps = false;
   VideoTiming video_timing = VideoTiming::PAL;
   std::string sysrom_path;
   std::string cartrom_path;
+  std::string art_nvram_path;
   bool read_sysrom_path = false;
+  bool read_art_nvram_path = false;
   const std::vector<std::string_view> args(argv + 1, argv + argc);
   for (const auto& arg : args) {
     if (read_sysrom_path) {
       sysrom_path = arg;
       read_sysrom_path = false;
+    } else if (read_art_nvram_path) {
+      art_nvram_path = arg;
+      read_art_nvram_path = false;
     } else if (read_flags && arg.size() >= 1 && arg[0] == '-') {
       if (arg == "-sysrom") {
         read_sysrom_path = true;
+      } else if (arg == "-art-nvram") {
+        read_art_nvram_path = true;
       } else if (arg == "-ntsc") {
         video_timing = VideoTiming::NTSC;
       } else if (arg == "-pal") {
         video_timing = VideoTiming::PAL;
       } else if (arg == "-art") {
-        has_art_ram = true;
+        has_art_nvram = true;
       } else if (arg == "-leds") {
         show_leds = true;
       } else if (arg == "-fps") {
@@ -74,6 +86,10 @@ int main(int argc, char** argv) {
   }
   if (cartrom_path.empty()) {
     std::cerr << "Error: no cartridge ROM defined" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (read_art_nvram_path && art_nvram_path.empty()) {
+    std::cerr << "Error: no Art Studio NVRAM path provided" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -105,6 +121,19 @@ int main(int argc, char** argv) {
   std::transform(cartrom->begin(), cartrom->end(), cartrom->begin(),
                  [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
 
-  return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_ram, video_timing, show_leds,
-                      show_fps);
+  std::optional<std::fstream> art_nvram_file;
+  if (!art_nvram_path.empty()) {
+    has_art_nvram = true;
+    std::fstream create_if_not_exists(art_nvram_path,
+                                      std::ios::binary | std::ios::out | std::ios::app);
+    create_if_not_exists.close();
+    art_nvram_file.emplace(art_nvram_path, std::ios::binary | std::ios::in | std::ios::out);
+    if (!art_nvram_file->is_open()) {
+      std::cerr << "Error: Failed to open NVRAM file";
+      return EXIT_FAILURE;
+    }
+  }
+
+  return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_nvram,
+                      std::move(art_nvram_file), video_timing, show_leds, show_fps);
 }

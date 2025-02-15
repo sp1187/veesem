@@ -1,3 +1,5 @@
+#include "ui.h"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -222,15 +224,28 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
 }
 
 int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
-                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_ram,
-                 VideoTiming video_timing, bool show_leds, bool show_fps) {
+                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_nvram,
+                 std::optional<std::fstream> art_nvram_file, VideoTiming video_timing,
+                 bool show_leds, bool show_fps) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
     std::cerr << "Unable to initialize SDL";
     return EXIT_FAILURE;
   }
 
-  auto vsmile =
-      std::make_unique<VSmile>(std::move(sys_rom), std::move(cart_rom), has_art_ram, video_timing);
+  std::unique_ptr<VSmile::ArtNvramType> art_nvram = nullptr;
+  if (has_art_nvram) {
+    art_nvram = std::make_unique<VSmile::ArtNvramType>();
+
+    if (art_nvram_file) {
+      art_nvram_file->read(reinterpret_cast<char*>(art_nvram->data()),
+                           sizeof(VSmile::ArtNvramType));
+      std::transform(art_nvram->begin(), art_nvram->end(), art_nvram->begin(),
+                     [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+    }
+  }
+
+  auto vsmile = std::make_unique<VSmile>(std::move(sys_rom), std::move(cart_rom), has_art_nvram,
+                                         std::move(art_nvram), video_timing);
   vsmile->Reset();
 
   GraphicsState graphics_state;
@@ -332,6 +347,17 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
     if (!ui.run_emulation) {
       SDL_Delay(20);
     }
+  }
+
+  // Flush Art Studio cartridge RAM to file if defined
+  if (art_nvram_file) {
+    auto final_art_nvram = *vsmile->GetArtNvram();
+    std::transform(final_art_nvram.begin(), final_art_nvram.end(), final_art_nvram.begin(),
+                   [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+    art_nvram_file->clear();
+    art_nvram_file->seekg(0, std::ios_base::beg);
+    art_nvram_file->write(reinterpret_cast<char*>(final_art_nvram.data()),
+                          sizeof(VSmile::ArtNvramType));
   }
 
   SDL_Quit();
