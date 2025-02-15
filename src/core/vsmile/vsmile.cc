@@ -86,7 +86,7 @@ VSmile::Io::Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType>
       has_art_ram_(has_art_ram),
       joy_(vsmile.joy_send_) {
   if (has_art_ram_) {
-    art_ram_ = std::make_unique<std::array<int, 0x10000>>();
+    art_ram_ = std::make_unique<std::array<int, 0x20000>>();
   }
 }
 
@@ -153,10 +153,10 @@ void VSmile::Io::WriteCsb1(addr_t addr, word_t value) {}
 word_t VSmile::Io::ReadCsb2(addr_t addr) {
   if (has_art_ram_) {
     // In-cartridge ROM used for the drawing area buffer in V.Smile Art Studio
-    return (*art_ram_)[addr & 0xffff];
+    return (*art_ram_)[addr & 0x1ffff];
   }
   // Some games have a dual-ROM cartridge configuration with a larger 4 MiB ROM
-  // connected to CSB0 and CSB1, and a smaller 2 MiB ROM connected to CSB2.
+  // connected to ROMCSB and CSB1, and a smaller 2 MiB ROM connected to CSB2.
   // This code handles combined ROM dumps where the CSB2 rom is appended to the
   // larger ROM.
   return (*cart_rom_)[addr + 0x200000];
@@ -164,7 +164,7 @@ word_t VSmile::Io::ReadCsb2(addr_t addr) {
 
 void VSmile::Io::WriteCsb2(addr_t addr, word_t value) {
   if (has_art_ram_) {
-    (*art_ram_)[addr & 0xffff] = value;
+    (*art_ram_)[addr & 0x1ffff] = value;
   }
 }
 

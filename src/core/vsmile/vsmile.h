@@ -74,7 +74,7 @@ private:
     std::unique_ptr<SysRomType> sys_rom_;
     std::unique_ptr<CartRomType> cart_rom_;
     bool has_art_ram_ = false;
-    std::unique_ptr<std::array<int, 0x10000>> art_ram_;
+    std::unique_ptr<std::array<int, 0x20000>> art_ram_;
     VSmileJoy joy_;
 
     bool rts_[2] = {true};
