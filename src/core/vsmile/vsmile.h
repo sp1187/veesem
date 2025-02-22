@@ -15,12 +15,14 @@ class VSmile {
 public:
   using CartRomType = std::array<word_t, 4 * 1024 * 1024>;
   using SysRomType = std::array<word_t, 1024 * 1024>;
+  using ArtNvramType = std::array<word_t, 128 * 1024>;
 
   using JoyInput = VSmileJoy::JoyInput;
   using JoyLedStatus = VSmileJoy::JoyLedStatus;
 
   VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-         bool has_art_rom, VideoTiming video_timing);
+         bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
+         VideoTiming video_timing);
 
   void RunFrame();
   void Step();
@@ -28,6 +30,7 @@ public:
 
   std::span<uint8_t> GetPicture() const;
   std::span<uint16_t> GetAudio();
+  const ArtNvramType* GetArtNvram();
 
   void SetPpuViewSettings(PpuViewSettings& ppu_view_settings);
 
@@ -41,8 +44,8 @@ public:
 private:
   class Io : public Spg200Io {
   public:
-    Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom, bool has_art_ram,
-       VSmile& vsmile);
+    Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
+       bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, VSmile& vsmile);
 
     void RunCycles(int cycles) override;
 
@@ -73,8 +76,8 @@ private:
 
     std::unique_ptr<SysRomType> sys_rom_;
     std::unique_ptr<CartRomType> cart_rom_;
-    bool has_art_ram_ = false;
-    std::unique_ptr<std::array<int, 0x20000>> art_ram_;
+    bool has_art_nvram_ = false;
+    std::unique_ptr<ArtNvramType> art_nvram_;
     VSmileJoy joy_;
 
     bool rts_[2] = {true};

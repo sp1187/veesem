@@ -1,3 +1,5 @@
+#include "ui.h"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -222,15 +224,16 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
 }
 
 int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
-                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_ram,
-                 VideoTiming video_timing, bool show_leds, bool show_fps) {
+                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_nvram,
+                 std::unique_ptr<VSmile::ArtNvramType> initial_art_nvram,
+                 const std::string& art_nvram_save_path, VideoTiming video_timing, bool show_leds,
+                 bool show_fps) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
     std::cerr << "Unable to initialize SDL";
     return EXIT_FAILURE;
   }
-
-  auto vsmile =
-      std::make_unique<VSmile>(std::move(sys_rom), std::move(cart_rom), has_art_ram, video_timing);
+  auto vsmile = std::make_unique<VSmile>(std::move(sys_rom), std::move(cart_rom), has_art_nvram,
+                                         std::move(initial_art_nvram), video_timing);
   vsmile->Reset();
 
   GraphicsState graphics_state;
@@ -331,6 +334,23 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
     }
     if (!ui.run_emulation) {
       SDL_Delay(20);
+    }
+  }
+
+  // Flush Art Studio cartridge RAM to file if save path is defined
+  if (has_art_nvram && !art_nvram_save_path.empty()) {
+    std::ofstream art_nvram_save(art_nvram_save_path, std::ios::binary | std::ios::trunc);
+    if (!art_nvram_save.good()) {
+      std::cerr << "Failed to open NVRAM save file for writing" << std::endl;
+    } else {
+      auto final_art_nvram = *vsmile->GetArtNvram();
+      std::transform(final_art_nvram.begin(), final_art_nvram.end(), final_art_nvram.begin(),
+                     [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+      art_nvram_save.write(reinterpret_cast<char*>(final_art_nvram.data()),
+                           sizeof(VSmile::ArtNvramType));
+      if (art_nvram_save.fail()) {
+        std::cerr << "Failed to write to NVRAM save file" << std::endl;
+      }
     }
   }
 

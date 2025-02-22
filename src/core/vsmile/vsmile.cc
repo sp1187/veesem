@@ -14,8 +14,10 @@
 #define VSMILE_LOGO true
 
 VSmile::VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-               bool has_art_ram, VideoTiming video_timing)
-    : io_(std::move(sys_rom), std::move(cart_rom), has_art_ram, *this),
+               bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
+               VideoTiming video_timing)
+    : io_(std::move(sys_rom), std::move(cart_rom), has_art_nvram, std::move(initial_art_nvram),
+          *this),
       spg200_(video_timing, io_),
       joy_send_(*this, 0) {}
 
@@ -36,10 +38,6 @@ void VSmile::Reset() {
   io_.rts_[0] = io_.rts_[1] = true;
   io_.cts_[0] = io_.cts_[1] = false;
 
-  if (io_.has_art_ram_) {
-    io_.art_ram_->fill(0);
-  }
-
   io_.joy_.Reset();
 
   io_.on_button_pressed_ = false;
@@ -53,6 +51,10 @@ std::span<uint8_t> VSmile::GetPicture() const {
 
 std::span<uint16_t> VSmile::GetAudio() {
   return spg200_.GetAudio();
+}
+
+const VSmile::ArtNvramType* VSmile::GetArtNvram() {
+  return io_.art_nvram_.get();
 }
 
 void VSmile::SetPpuViewSettings(PpuViewSettings& ppu_view_settings) {
@@ -80,13 +82,16 @@ void VSmile::UpdateRestartButton(bool pressed) {
 }
 
 VSmile::Io::Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-               bool has_art_ram, VSmile& vsmile)
+               bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, VSmile& vsmile)
     : sys_rom_(std::move(sys_rom)),
       cart_rom_(std::move(cart_rom)),
-      has_art_ram_(has_art_ram),
+      has_art_nvram_(has_art_nvram),
       joy_(vsmile.joy_send_) {
-  if (has_art_ram_) {
-    art_ram_ = std::make_unique<std::array<int, 0x20000>>();
+  if (has_art_nvram_) {
+    if (!initial_art_nvram) {
+      die("Art Studio NVRAM enabled but no initial value sent");
+    }
+    art_nvram_ = std::move(initial_art_nvram);
   }
 }
 
@@ -151,9 +156,9 @@ word_t VSmile::Io::ReadCsb1(addr_t addr) {
 void VSmile::Io::WriteCsb1(addr_t addr, word_t value) {}
 
 word_t VSmile::Io::ReadCsb2(addr_t addr) {
-  if (has_art_ram_) {
+  if (has_art_nvram_) {
     // In-cartridge ROM used for the drawing area buffer in V.Smile Art Studio
-    return (*art_ram_)[addr & 0x1ffff];
+    return (*art_nvram_)[addr & 0x1ffff];
   }
   // Some games have a dual-ROM cartridge configuration with a larger 4 MiB ROM
   // connected to ROMCSB and CSB1, and a smaller 2 MiB ROM connected to CSB2.
@@ -163,8 +168,8 @@ word_t VSmile::Io::ReadCsb2(addr_t addr) {
 }
 
 void VSmile::Io::WriteCsb2(addr_t addr, word_t value) {
-  if (has_art_ram_) {
-    (*art_ram_)[addr & 0x1ffff] = value;
+  if (has_art_nvram_) {
+    (*art_nvram_)[addr & 0x1ffff] = value;
   }
 }
 

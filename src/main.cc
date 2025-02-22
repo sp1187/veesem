@@ -13,13 +13,16 @@ void PrintUsage(std::string exec_name) {
   std::cout << "Usage: " << exec_name << " [OPTIONS] [SYSROM] CARTROM" << std::endl
             << std::endl
             << "Options:" << std::endl
-            << "  -sysrom ROM  Provide system ROM" << std::endl
-            << "  -pal         Use PAL video timing (default)" << std::endl
-            << "  -ntsc        Use NTSC video timing" << std::endl
-            << "  -art         Emulate CSB2 cartridge RAM (used by V.Smile Art Studio)" << std::endl
+            << "  -sysrom ROM       Provide system ROM" << std::endl
+            << "  -pal              Use PAL video timing (default)" << std::endl
+            << "  -ntsc             Use NTSC video timing" << std::endl
+            << "  -art              Emulate CSB2 cartridge NVRAM (used by V.Smile Art Studio)"
             << std::endl
-            << "  -leds        Show controller LEDs at startup" << std::endl
-            << "  -fps         Show emulation FPS at startup" << std::endl;
+            << "  -art-nvram FILE   Emulate CSB2 cartridge NVRAM and use FILE for persistent saving"
+            << std::endl
+            << std::endl
+            << "  -leds            Show controller LEDs at startup" << std::endl
+            << "  -fps             Show emulation FPS at startup" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -32,31 +35,41 @@ int main(int argc, char** argv) {
     return 0;
   }
   bool read_flags = true;
-  bool has_art_ram = false;
+  bool has_art_nvram = false;
   bool show_leds = false;
   bool show_fps = false;
   VideoTiming video_timing = VideoTiming::PAL;
   std::string sysrom_path;
   std::string cartrom_path;
+  std::string art_nvram_path;
   bool read_sysrom_path = false;
+  bool read_art_nvram_path = false;
   const std::vector<std::string_view> args(argv + 1, argv + argc);
   for (const auto& arg : args) {
     if (read_sysrom_path) {
       sysrom_path = arg;
       read_sysrom_path = false;
+    } else if (read_art_nvram_path) {
+      art_nvram_path = arg;
+      read_art_nvram_path = false;
     } else if (read_flags && arg.size() >= 1 && arg[0] == '-') {
       if (arg == "-sysrom") {
         read_sysrom_path = true;
+      } else if (arg == "-art-nvram") {
+        read_art_nvram_path = true;
       } else if (arg == "-ntsc") {
         video_timing = VideoTiming::NTSC;
       } else if (arg == "-pal") {
         video_timing = VideoTiming::PAL;
       } else if (arg == "-art") {
-        has_art_ram = true;
+        has_art_nvram = true;
       } else if (arg == "-leds") {
         show_leds = true;
       } else if (arg == "-fps") {
         show_fps = true;
+      } else {
+        std::cerr << "Error: Unknown flag " << arg << std::endl;
+        return EXIT_FAILURE;
       }
     } else {
       if (cartrom_path.empty()) {
@@ -74,6 +87,10 @@ int main(int argc, char** argv) {
   }
   if (cartrom_path.empty()) {
     std::cerr << "Error: no cartridge ROM defined" << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (read_art_nvram_path && art_nvram_path.empty()) {
+    std::cerr << "Error: no Art Studio NVRAM path provided" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -105,6 +122,23 @@ int main(int argc, char** argv) {
   std::transform(cartrom->begin(), cartrom->end(), cartrom->begin(),
                  [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
 
-  return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_ram, video_timing, show_leds,
+  std::unique_ptr<VSmile::ArtNvramType> initial_art_nvram;
+  if (!art_nvram_path.empty()) {
+    std::ifstream art_nvram_file(art_nvram_path, std::ios::binary);
+    has_art_nvram = true;
+    initial_art_nvram = std::make_unique<VSmile::ArtNvramType>();
+    if (art_nvram_file.good()) {
+      art_nvram_file.read(reinterpret_cast<char*>(initial_art_nvram.get()),
+                          sizeof *initial_art_nvram);
+      std::transform(initial_art_nvram->begin(), initial_art_nvram->end(),
+                     initial_art_nvram->begin(),
+                     [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+    }
+  } else if (has_art_nvram) {
+    initial_art_nvram = std::make_unique<VSmile::ArtNvramType>();
+  }
+
+  return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_nvram,
+                      std::move(initial_art_nvram), art_nvram_path, video_timing, show_leds,
                       show_fps);
 }

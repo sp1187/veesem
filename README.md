@@ -12,6 +12,8 @@ veesem is an experimental V.Smile emulator. Game compatibility is generally quit
     * `-sysrom ROM` - Provide system ROM (otherwise dummy ROM without boot animation will be used)
     * `-pal` - Use PAL video timing (default)
     * `-ntsc` - Use NTSC video timing
+    * `-art` - Emulate CSB2 cartridge NVRAM (used by V.Smile Art Studio)
+    * `-art-nvram FILE` - Emulate CSB2 cartridge NVRAM and use `FILE` for persistent saving
 * Visual options:
     * `-leds` - Show controller LEDs at startup
     * `-fps` - Show emulation FPS at startup
