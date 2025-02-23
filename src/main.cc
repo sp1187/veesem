@@ -21,6 +21,7 @@ void PrintUsage(std::string exec_name) {
       << "  -art              Emulate CSB2 cartridge NVRAM (used by V.Smile Art Studio)"
       << std::endl
       << "  -art-nvram FILE   Emulate CSB2 cartridge NVRAM and use FILE for persistent saving"
+      << std::endl
       << "  -region NUM       Set jumpers configuring system ROM region as hex number in range 0-f"
       << std::endl
       << "  -novtech          Set jumpers disabling VTech logo in system ROM intro" << std::endl
@@ -89,7 +90,7 @@ int main(int argc, char** argv) {
         }
 
         if (region_code > 0xf) {
-          std::cerr << "Error: Region code out of range (should be in range 0x0-0xf)" << std::endl;
+          std::cerr << "Error: Region code out of range (should be in range 0-f)" << std::endl;
           return EXIT_FAILURE;
         }
       } else if (arg == "-novtech") {
