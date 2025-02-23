@@ -21,8 +21,8 @@ public:
   using JoyLedStatus = VSmileJoy::JoyLedStatus;
 
   VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-         bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
-         VideoTiming video_timing);
+         bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, unsigned region_code,
+         bool vtech_logo, VideoTiming video_timing);
 
   void RunFrame();
   void Step();
@@ -45,7 +45,8 @@ private:
   class Io : public Spg200Io {
   public:
     Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-       bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, VSmile& vsmile);
+       bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, unsigned region_code,
+       bool vtech_logo, VSmile& vsmile);
 
     void RunCycles(int cycles) override;
 
@@ -73,6 +74,9 @@ private:
     void WriteCsb2(addr_t addr, word_t value) override;
     word_t ReadCsb3(addr_t addr) override;
     void WriteCsb3(addr_t addr, word_t value) override;
+
+    const unsigned region_code_;
+    const bool vtech_logo_;
 
     std::unique_ptr<SysRomType> sys_rom_;
     std::unique_ptr<CartRomType> cart_rom_;

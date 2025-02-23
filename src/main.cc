@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <charconv>
 #include <iostream>
 #include <vector>
 
@@ -10,19 +11,23 @@
 #define VERSION "0.1"
 
 void PrintUsage(std::string exec_name) {
-  std::cout << "Usage: " << exec_name << " [OPTIONS] [SYSROM] CARTROM" << std::endl
-            << std::endl
-            << "Options:" << std::endl
-            << "  -sysrom ROM       Provide system ROM" << std::endl
-            << "  -pal              Use PAL video timing (default)" << std::endl
-            << "  -ntsc             Use NTSC video timing" << std::endl
-            << "  -art              Emulate CSB2 cartridge NVRAM (used by V.Smile Art Studio)"
-            << std::endl
-            << "  -art-nvram FILE   Emulate CSB2 cartridge NVRAM and use FILE for persistent saving"
-            << std::endl
-            << std::endl
-            << "  -leds            Show controller LEDs at startup" << std::endl
-            << "  -fps             Show emulation FPS at startup" << std::endl;
+  std::cout
+      << "Usage: " << exec_name << " [OPTIONS] CARTROM" << std::endl
+      << std::endl
+      << "Options:" << std::endl
+      << "  -sysrom ROM       Provide system ROM" << std::endl
+      << "  -pal              Use PAL video timing (default)" << std::endl
+      << "  -ntsc             Use NTSC video timing" << std::endl
+      << "  -art              Emulate CSB2 cartridge NVRAM (used by V.Smile Art Studio)"
+      << std::endl
+      << "  -art-nvram FILE   Emulate CSB2 cartridge NVRAM and use FILE for persistent saving"
+      << "  -region NUM       Set jumpers configuring system ROM region as hex number in range 0-f"
+      << std::endl
+      << "  -novtech          Set jumpers disabling VTech logo in system ROM intro" << std::endl
+      << std::endl
+      << std::endl
+      << "  -leds            Show controller LEDs at startup" << std::endl
+      << "  -fps             Show emulation FPS at startup" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -36,37 +41,65 @@ int main(int argc, char** argv) {
   }
   bool read_flags = true;
   bool has_art_nvram = false;
+  bool vtech_logo = true;
   bool show_leds = false;
   bool show_fps = false;
   VideoTiming video_timing = VideoTiming::PAL;
   std::string sysrom_path;
   std::string cartrom_path;
   std::string art_nvram_path;
-  bool read_sysrom_path = false;
-  bool read_art_nvram_path = false;
+  unsigned region_code = 0xe;  // UK English as default
   const std::vector<std::string_view> args(argv + 1, argv + argc);
-  for (const auto& arg : args) {
-    if (read_sysrom_path) {
-      sysrom_path = arg;
-      read_sysrom_path = false;
-    } else if (read_art_nvram_path) {
-      art_nvram_path = arg;
-      read_art_nvram_path = false;
-    } else if (read_flags && arg.size() >= 1 && arg[0] == '-') {
+
+  size_t argpos = 0;
+  while (argpos < args.size()) {
+    const auto& arg = args[argpos];
+    if (read_flags && !arg.empty() && arg[0] == '-') {
       if (arg == "-sysrom") {
-        read_sysrom_path = true;
+        if (argpos + 1 >= args.size()) {
+          std::cerr << "Error: expected system ROM path" << std::endl;
+          return EXIT_FAILURE;
+        }
+        sysrom_path = args[++argpos];
       } else if (arg == "-art-nvram") {
-        read_art_nvram_path = true;
+        if (argpos + 1 >= args.size()) {
+          std::cerr << "Error: expected Art Studio NVRAM path" << std::endl;
+          return EXIT_FAILURE;
+        }
+        art_nvram_path = args[++argpos];
       } else if (arg == "-ntsc") {
         video_timing = VideoTiming::NTSC;
       } else if (arg == "-pal") {
         video_timing = VideoTiming::PAL;
       } else if (arg == "-art") {
         has_art_nvram = true;
+      } else if (arg == "-region") {
+        if (argpos + 1 >= args.size()) {
+          std::cerr << "Error: expected system region code" << std::endl;
+          return EXIT_FAILURE;
+        }
+        const auto& num_str = args[++argpos];
+
+        auto [ptr, error] =
+            std::from_chars(num_str.data(), num_str.data() + num_str.size(), region_code, 16);
+
+        if (ptr != (num_str.data() + num_str.size()) || error != std::errc()) {
+          std::cerr << "Error: could not parse region code as hex value" << std::endl;
+          return EXIT_FAILURE;
+        }
+
+        if (region_code > 0xf) {
+          std::cerr << "Error: Region code out of range (should be in range 0x0-0xf)" << std::endl;
+          return EXIT_FAILURE;
+        }
+      } else if (arg == "-novtech") {
+        vtech_logo = false;
       } else if (arg == "-leds") {
         show_leds = true;
       } else if (arg == "-fps") {
         show_fps = true;
+      } else if (arg == "--") {
+        read_flags = false;
       } else {
         std::cerr << "Error: Unknown flag " << arg << std::endl;
         return EXIT_FAILURE;
@@ -79,18 +112,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
       }
     }
+    argpos++;
   }
 
-  if (read_sysrom_path && sysrom_path.empty()) {
-    std::cerr << "Error: no system ROM path provided" << std::endl;
-    return EXIT_FAILURE;
-  }
   if (cartrom_path.empty()) {
     std::cerr << "Error: no cartridge ROM defined" << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (read_art_nvram_path && art_nvram_path.empty()) {
-    std::cerr << "Error: no Art Studio NVRAM path provided" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -139,6 +165,6 @@ int main(int argc, char** argv) {
   }
 
   return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_nvram,
-                      std::move(initial_art_nvram), art_nvram_path, video_timing, show_leds,
-                      show_fps);
+                      std::move(initial_art_nvram), art_nvram_path, region_code, vtech_logo,
+                      video_timing, show_leds, show_fps);
 }

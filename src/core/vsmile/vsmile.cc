@@ -1,23 +1,34 @@
 #include "vsmile.h"
 
-/* V.Smile BIOS regions:
- * 0x0: no screen
- * 0x4: UK/US
- * 0x7: China
- * 0x8: Mexico
- * 0xa: Italy
- * 0xb: Germany
- * 0xd: France
+/* V.Smile system ROM region codes:
+ * 0x0/0x1: no V.Smile screen (1.02+)
+ * 0x2: Italian (1.03), UK English without subtitle (1.02)
+ * 0x3: US English without subtitle (1.02+)
+ * 0x4: US English with alternate subtitle "TV Learning System" (1.02+)
+ * 0x5: US English audio variant without "V.Smile" speech sample (1.02+)
+ * 0x6: UK English audio variant without "V.Smile" speech sample (1.02+)
+ * 0x7: Chinese
+ * 0x8: Portuguese
+ * 0x9: "Dutch" (has same data as US English)
+ * 0xa: UK English without subtitle (1.03), Italian (1.00/1.02)
+ * 0xb: German
+ * 0xc: Spanish
+ * 0xd: French
+ * 0xe: UK English with standard subtitle ("Learning System" in 1.02+)
+ * 0xf: US English with standard subtitle ("Learning System" in 1.02+)
+ *
+ * Version 1.00 notes:
+ * The standard English subtitle in this version is "TV Learning System".
+ * Running the system ROM without a game cartridge and region code
+ * below 0x6 will display a blinking blue VTech logo in white.
+ * With a cartridge it will display the US English intro.
  */
-
-#define VSMILE_REGION 0x4
-#define VSMILE_LOGO true
 
 VSmile::VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
                bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
-               VideoTiming video_timing)
+               unsigned region_code, bool vtech_logo, VideoTiming video_timing)
     : io_(std::move(sys_rom), std::move(cart_rom), has_art_nvram, std::move(initial_art_nvram),
-          *this),
+          region_code, vtech_logo, *this),
       spg200_(video_timing, io_),
       joy_send_(*this, 0) {}
 
@@ -82,8 +93,11 @@ void VSmile::UpdateRestartButton(bool pressed) {
 }
 
 VSmile::Io::Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-               bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, VSmile& vsmile)
-    : sys_rom_(std::move(sys_rom)),
+               bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
+               unsigned region_code, bool vtech_logo, VSmile& vsmile)
+    : region_code_(region_code & 0xf),
+      vtech_logo_(vtech_logo),
+      sys_rom_(std::move(sys_rom)),
       cart_rom_(std::move(cart_rom)),
       has_art_nvram_(has_art_nvram),
       joy_(vsmile.joy_send_) {
@@ -124,7 +138,7 @@ word_t VSmile::Io::GetPortB() {
 }
 
 word_t VSmile::Io::GetPortC() {
-  word_t val = VSMILE_REGION | (VSMILE_LOGO << 4) | 0x0020 | (cts_[0] << 8) | (cts_[1] << 9) |
+  word_t val = region_code_ | (vtech_logo_ << 4) | 0x0020 | (cts_[0] << 8) | (cts_[1] << 9) |
                (rts_[0] << 10) | (rts_[1] << 12) | 0x6000;
   return val;
 }
