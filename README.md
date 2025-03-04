@@ -49,17 +49,18 @@ Currently only the standard V.Smile controller is supported.
 
 ## Build instructions
 
-* Required dependencies: SDL2, OpenGL
+* Required dependencies: SDL2, OpenGL, CMake (for building)
 * Supported compilers: GCC or Clang with C++20 support. MSVC is not supported.
 
 ### Steps
 1. Create a `build` directory and change working directory to it.
 2. Run `cmake .. -DCMAKE_BUILD_TYPE=Release`.
-    - When building on Windows, you probably need to specify the path of your SDL2
+    - When building on Windows, you may need to specify the path of your SDL2
       MinGW development package directory with `-DCMAKE_MODULE_PATH`,
       e.g. `-DCMAKE_MODULE_PATH=~/SDL2-2.30.11/x86_64-w64-mingw32/`.
-3. Run `make` or whatever the equivalent is in your preferred CMake generator.
+3. Run `cmake --build .`. Add `-j` flag followed by number of threads for parallel building.
 4. You should now have a working `veesem` executable.
     - For Windows, remember to also copy the DLL from the SDL2 development package
       directory to the directory of the executable.
       The DLL can usually be found in `x86_64-w64-mingw32/bin`.
+5. Optionally, you can install it into your system with `cmake --install .`.

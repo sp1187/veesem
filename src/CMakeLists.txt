@@ -64,3 +64,5 @@ target_include_directories(veesem PUBLIC .)
 target_link_libraries(veesem
   veesem_ui
 )
+
+install(TARGETS veesem DESTINATION bin)
