@@ -58,13 +58,13 @@ int main(int argc, char** argv) {
     if (read_flags && !arg.empty() && arg[0] == '-') {
       if (arg == "-sysrom") {
         if (argpos + 1 >= args.size()) {
-          std::cerr << "Error: expected system ROM path" << std::endl;
+          std::cerr << "Error: Expected system ROM path" << std::endl;
           return EXIT_FAILURE;
         }
         sysrom_path = args[++argpos];
       } else if (arg == "-art-nvram") {
         if (argpos + 1 >= args.size()) {
-          std::cerr << "Error: expected Art Studio NVRAM path" << std::endl;
+          std::cerr << "Error: Expected Art Studio NVRAM path" << std::endl;
           return EXIT_FAILURE;
         }
         art_nvram_path = args[++argpos];
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
         has_art_nvram = true;
       } else if (arg == "-region") {
         if (argpos + 1 >= args.size()) {
-          std::cerr << "Error: expected system region code" << std::endl;
+          std::cerr << "Error: Expected system region code" << std::endl;
           return EXIT_FAILURE;
         }
         const auto& num_str = args[++argpos];
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
   }
 
   if (cartrom_path.empty()) {
-    std::cerr << "Error: no cartridge ROM defined" << std::endl;
+    std::cerr << "Error: No cartridge ROM defined" << std::endl;
     return EXIT_FAILURE;
   }
 
