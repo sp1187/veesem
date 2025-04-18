@@ -196,7 +196,7 @@ void Timer::UpdateTimerADivisors() {
         break;
     }
   } else {
-    die("Unsupported timer A settings");
+    die("Unsupported timer setting");
   }
 }
 
