@@ -21,7 +21,7 @@ void GraphicsState::Init(int width, int height) {
   // bind texture
   glGenTextures(1, &texture_id_);
 
-  // set size of frame buffer
+  // Set size of frame buffer
   Resize(width, height);
 }
 

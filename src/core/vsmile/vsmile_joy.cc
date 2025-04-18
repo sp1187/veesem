@@ -86,10 +86,10 @@ VSmileJoy::JoyLedStatus VSmileJoy::GetLeds() {
 void VSmileJoy::StartTx() {
   assert(!tx_busy_);
   if (tx_buffer_read_ == tx_buffer_write_) {
-    die("queue was empty");
+    die("Queue was empty");
   }
   if (tx_busy_) {
-    die("uart is busy");
+    die("UART is busy");
   }
   uint8_t byte = PopTx();
   joy_send_.Tx(byte);
@@ -126,7 +126,7 @@ void VSmileJoy::QueueTx(uint8_t byte) {
 
 uint8_t VSmileJoy::PopTx() {
   if (tx_buffer_write_ == tx_buffer_read_)
-    die("joy: empty send buffer");
+    die("JOY: Empty send buffer");
 
   auto value = tx_buffer_[tx_buffer_read_];
   tx_buffer_read_ = (tx_buffer_read_ + 1) % tx_buffer_.size();
