@@ -25,6 +25,11 @@ static struct UiSettings {
   bool show_fps = false;
   bool bilinear = true;
   bool show_ppu_view_settings_window = false;
+  bool show_spu_output_window = false;
+
+  std::array<float, 281250 / 4> audio_samples_left;
+  std::array<float, 281250 / 4> audio_samples_right;
+  int audio_samples_offset = 0;
 
   PpuViewSettings ppu_view_settings = {};
 } ui;
@@ -182,6 +187,7 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
       ImGui::MenuItem("Show FPS", "", &ui.show_fps);
       ImGui::Separator();
       ImGui::MenuItem("Show PPU View Settings", "", &ui.show_ppu_view_settings_window);
+      ImGui::MenuItem("Show SPU Output", "", &ui.show_spu_output_window);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help")) {
@@ -212,6 +218,24 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
     if (updated) {
       vsmile.SetPpuViewSettings(ui.ppu_view_settings);
     }
+    ImGui::End();
+  }
+
+  if (ui.show_spu_output_window) {
+    ImGui::SetNextWindowSize(ImVec2(480, 320), ImGuiCond_FirstUseEver);
+    ImGui::Begin("SPU Output", &ui.show_spu_output_window);
+    static int zoom = 1;
+    ImGui::SliderInt("Zoom Level", &zoom, 1, 8);
+    auto region_avail = ImGui::GetContentRegionAvail();
+    auto height =
+        (region_avail.y - ImGui::GetStyle().ItemSpacing.y - ImGui::GetStyle().FramePadding.y) / 2;
+
+    ImGui::PlotLines("##spu_left", std::data(ui.audio_samples_left),
+                     std::size(ui.audio_samples_left), ui.audio_samples_offset, "Left Channel",
+                     -(32768. / zoom), (32768. / zoom), ImVec2(region_avail.x, height));
+    ImGui::PlotLines("##spu_right", std::data(ui.audio_samples_right),
+                     std::size(ui.audio_samples_right), ui.audio_samples_offset, "Right Channel",
+                     -(32768. / zoom), (32768. / zoom), ImVec2(region_avail.x, height));
     ImGui::End();
   }
 
@@ -317,6 +341,17 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
 
       auto ab = vsmile->GetAudio();
       SDL_AudioStreamPut(audio_stream, ab.data(), ab.size() * sizeof(uint16_t));
+
+      if (ui.show_spu_output_window) {
+        for (size_t i = 0; i < ab.size(); i += 2) {
+          ui.audio_samples_left[ui.audio_samples_offset] = (ab[i] - 32768);
+          ui.audio_samples_right[ui.audio_samples_offset] = (ab[i + 1] - 32768);
+          ui.audio_samples_offset++;
+
+          if (ui.audio_samples_offset == std::size(ui.audio_samples_left))
+            ui.audio_samples_offset = 0;
+        }
+      }
     }
 
     auto fb = vsmile->GetPicture();
