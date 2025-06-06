@@ -26,9 +26,10 @@ void PrintUsage(std::string exec_name) {
       << std::endl
       << "  -novtech          Set jumpers disabling VTech logo in system ROM intro" << std::endl
       << std::endl
-      << std::endl
       << "  -leds            Show controller LEDs at startup" << std::endl
-      << "  -fps             Show emulation FPS at startup" << std::endl;
+      << "  -fps             Show emulation FPS at startup" << std::endl
+      << std::endl
+      << "  -help            Print this help text" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -38,17 +39,17 @@ int main(int argc, char** argv) {
               << std::endl;
 
     PrintUsage(argv[0]);
-    return 0;
+    return EXIT_SUCCESS;
   }
   bool read_flags = true;
-  bool has_art_nvram = false;
+  VSmile::CartType cart_type = VSmile::CartType::STANDARD;
   bool vtech_logo = true;
   bool show_leds = false;
   bool show_fps = false;
   VideoTiming video_timing = VideoTiming::PAL;
-  std::string sysrom_path;
-  std::string cartrom_path;
-  std::string art_nvram_path;
+  std::optional<std::string> sysrom_path;
+  std::optional<std::string> cartrom_path;
+  std::optional<std::string> art_nvram_path;
   unsigned region_code = 0xe;  // UK English as default
   const std::vector<std::string_view> args(argv + 1, argv + argc);
 
@@ -56,6 +57,10 @@ int main(int argc, char** argv) {
   while (argpos < args.size()) {
     const auto& arg = args[argpos];
     if (read_flags && !arg.empty() && arg[0] == '-') {
+      if (arg == "-help" || arg == "--help") {
+        PrintUsage(argv[0]);
+        return EXIT_SUCCESS;
+      }
       if (arg == "-sysrom") {
         if (argpos + 1 >= args.size()) {
           std::cerr << "Error: Expected system ROM path" << std::endl;
@@ -63,6 +68,7 @@ int main(int argc, char** argv) {
         }
         sysrom_path = args[++argpos];
       } else if (arg == "-art-nvram") {
+        cart_type = VSmile::CartType::ART_STUDIO;
         if (argpos + 1 >= args.size()) {
           std::cerr << "Error: Expected Art Studio NVRAM path" << std::endl;
           return EXIT_FAILURE;
@@ -73,7 +79,7 @@ int main(int argc, char** argv) {
       } else if (arg == "-pal") {
         video_timing = VideoTiming::PAL;
       } else if (arg == "-art") {
-        has_art_nvram = true;
+        cart_type = VSmile::CartType::ART_STUDIO;
       } else if (arg == "-region") {
         if (argpos + 1 >= args.size()) {
           std::cerr << "Error: Expected system region code" << std::endl;
@@ -106,7 +112,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
       }
     } else {
-      if (cartrom_path.empty()) {
+      if (!cartrom_path.has_value()) {
         cartrom_path = arg;
       } else {
         std::cerr << "Error: too many ROM arguments sent" << std::endl;
@@ -116,56 +122,6 @@ int main(int argc, char** argv) {
     argpos++;
   }
 
-  if (cartrom_path.empty()) {
-    std::cerr << "Error: No cartridge ROM defined" << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  auto sysrom = std::make_unique<VSmile::SysRomType>();
-  if (!sysrom_path.empty()) {
-    std::ifstream sysrom_file(sysrom_path, std::ios::binary);
-    if (!sysrom_file.good()) {
-      std::cerr << "Error: Could not open system ROM file" << std::endl;
-      return EXIT_FAILURE;
-    }
-    sysrom_file.read(reinterpret_cast<char*>(sysrom.get()), sizeof *sysrom);
-    std::transform(sysrom->begin(), sysrom->end(), sysrom->begin(),
-                   [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
-  } else {
-    // Provide game-compatible dummy system ROM if no one provided by user
-    sysrom->fill(0);
-    for (int i = 0xfffc0; i < 0xfffdc; i += 2) {
-      (*sysrom)[i + 1] = 0x31;
-    }
-  }
-
-  auto cartrom = std::make_unique<VSmile::CartRomType>();
-  std::ifstream cartrom_file(cartrom_path, std::ios::binary);
-  if (!cartrom_file.good()) {
-    std::cerr << "Error: Could not open cartridge ROM file" << std::endl;
-    return EXIT_FAILURE;
-  }
-  cartrom_file.read(reinterpret_cast<char*>(cartrom.get()), sizeof *cartrom);
-  std::transform(cartrom->begin(), cartrom->end(), cartrom->begin(),
-                 [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
-
-  std::unique_ptr<VSmile::ArtNvramType> initial_art_nvram;
-  if (!art_nvram_path.empty()) {
-    std::ifstream art_nvram_file(art_nvram_path, std::ios::binary);
-    has_art_nvram = true;
-    initial_art_nvram = std::make_unique<VSmile::ArtNvramType>();
-    if (art_nvram_file.good()) {
-      art_nvram_file.read(reinterpret_cast<char*>(initial_art_nvram.get()),
-                          sizeof *initial_art_nvram);
-      std::transform(initial_art_nvram->begin(), initial_art_nvram->end(),
-                     initial_art_nvram->begin(),
-                     [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
-    }
-  } else if (has_art_nvram) {
-    initial_art_nvram = std::make_unique<VSmile::ArtNvramType>();
-  }
-
-  return RunEmulation(std::move(sysrom), std::move(cartrom), has_art_nvram,
-                      std::move(initial_art_nvram), art_nvram_path, region_code, vtech_logo,
+  return RunEmulation(sysrom_path, cartrom_path, cart_type, art_nvram_path, region_code, vtech_logo,
                       video_timing, show_leds, show_fps);
 }

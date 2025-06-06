@@ -1,9 +1,10 @@
 #pragma once
 
+#include <optional>
+
 #include "core/vsmile/vsmile.h"
 
-int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
-                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_nvram,
-                 std::unique_ptr<VSmile::ArtNvramType> initial_art_nvram,
-                 const std::string& art_nvram_save_path, unsigned region_code, bool vtech_logo,
-                 VideoTiming video_timing, bool show_leds, bool show_fps);
+int RunEmulation(std::optional<std::string> sysrom_path, std::optional<std::string> cartrom_path,
+                 VSmile::CartType cart_type, std::optional<std::string> art_nvram_path,
+                 unsigned region_code, bool vtech_logo, VideoTiming video_timing, bool show_leds,
+                 bool show_fps);

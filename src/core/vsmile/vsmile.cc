@@ -25,9 +25,9 @@
  */
 
 VSmile::VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-               bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
+               CartType cart_type, std::unique_ptr<ArtNvramType> initial_art_nvram,
                unsigned region_code, bool vtech_logo, VideoTiming video_timing)
-    : io_(std::move(sys_rom), std::move(cart_rom), has_art_nvram, std::move(initial_art_nvram),
+    : io_(std::move(sys_rom), std::move(cart_rom), cart_type, std::move(initial_art_nvram),
           region_code, vtech_logo, *this),
       spg200_(video_timing, io_),
       joy_send_(*this, 0) {}
@@ -93,15 +93,15 @@ void VSmile::UpdateRestartButton(bool pressed) {
 }
 
 VSmile::Io::Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-               bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram,
+               CartType cart_type, std::unique_ptr<ArtNvramType> initial_art_nvram,
                unsigned region_code, bool vtech_logo, VSmile& vsmile)
     : region_code_(region_code & 0xf),
       vtech_logo_(vtech_logo),
       sys_rom_(std::move(sys_rom)),
       cart_rom_(std::move(cart_rom)),
-      has_art_nvram_(has_art_nvram),
+      cart_type_(cart_type),
       joy_(vsmile.joy_send_) {
-  if (has_art_nvram_) {
+  if (cart_type_ == CartType::ART_STUDIO) {
     if (!initial_art_nvram) {
       die("Art Studio NVRAM enabled but no initial value sent");
     }
@@ -170,7 +170,7 @@ word_t VSmile::Io::ReadCsb1(addr_t addr) {
 void VSmile::Io::WriteCsb1(addr_t addr, word_t value) {}
 
 word_t VSmile::Io::ReadCsb2(addr_t addr) {
-  if (has_art_nvram_) {
+  if (cart_type_ == CartType::ART_STUDIO) {
     // In-cartridge ROM used for the drawing area buffer in V.Smile Art Studio
     return (*art_nvram_)[addr & 0x1ffff];
   }
@@ -182,7 +182,7 @@ word_t VSmile::Io::ReadCsb2(addr_t addr) {
 }
 
 void VSmile::Io::WriteCsb2(addr_t addr, word_t value) {
-  if (has_art_nvram_) {
+  if (cart_type_ == CartType::ART_STUDIO) {
     (*art_nvram_)[addr & 0x1ffff] = value;
   }
 }

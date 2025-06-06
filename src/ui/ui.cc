@@ -247,18 +247,67 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
   }
 }
 
-int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
-                 std::unique_ptr<VSmile::CartRomType> cart_rom, bool has_art_nvram,
-                 std::unique_ptr<VSmile::ArtNvramType> initial_art_nvram,
-                 const std::string& art_nvram_save_path, unsigned region_code, bool vtech_logo,
-                 VideoTiming video_timing, bool show_leds, bool show_fps) {
+int RunEmulation(std::optional<std::string> sysrom_path, std::optional<std::string> cartrom_path,
+                 VSmile::CartType cart_type, std::optional<std::string> art_nvram_path,
+                 unsigned region_code, bool vtech_logo, VideoTiming video_timing, bool show_leds,
+                 bool show_fps) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
     std::cerr << "Unable to initialize SDL";
     return EXIT_FAILURE;
   }
 
+  if (!cartrom_path.has_value()) {
+    std::cerr << "Error: No cartridge ROM defined" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto sysrom = std::make_unique<VSmile::SysRomType>();
+  if (sysrom_path.has_value()) {
+    std::ifstream sysrom_file(sysrom_path.value(), std::ios::binary);
+    if (!sysrom_file.good()) {
+      std::cerr << "Error: Could not open system ROM file" << std::endl;
+      return EXIT_FAILURE;
+    }
+    sysrom_file.read(reinterpret_cast<char*>(sysrom.get()), sizeof *sysrom);
+    std::transform(sysrom->begin(), sysrom->end(), sysrom->begin(),
+                   [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+  } else {
+    // Provide game-compatible dummy system ROM if no one provided by user
+    sysrom->fill(0);
+    for (int i = 0xfffc0; i < 0xfffdc; i += 2) {
+      (*sysrom)[i + 1] = 0x31;
+    }
+  }
+
+  auto cartrom = std::make_unique<VSmile::CartRomType>();
+  std::ifstream cartrom_file(cartrom_path.value(), std::ios::binary);
+  if (!cartrom_file.good()) {
+    std::cerr << "Error: Could not open cartridge ROM file" << std::endl;
+    return EXIT_FAILURE;
+  }
+  cartrom_file.read(reinterpret_cast<char*>(cartrom.get()), sizeof *cartrom);
+  std::transform(cartrom->begin(), cartrom->end(), cartrom->begin(),
+                 [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+
+  std::unique_ptr<VSmile::ArtNvramType> initial_art_nvram;
+  if (cart_type == VSmile::CartType::ART_STUDIO) {
+    if (art_nvram_path.has_value()) {
+      std::ifstream art_nvram_file(art_nvram_path.value(), std::ios::binary);
+      initial_art_nvram = std::make_unique<VSmile::ArtNvramType>();
+      if (art_nvram_file.good()) {
+        art_nvram_file.read(reinterpret_cast<char*>(initial_art_nvram.get()),
+                            sizeof *initial_art_nvram);
+        std::transform(initial_art_nvram->begin(), initial_art_nvram->end(),
+                       initial_art_nvram->begin(),
+                       [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
+      }
+    } else {
+      initial_art_nvram = std::make_unique<VSmile::ArtNvramType>();
+    }
+  }
+
   auto vsmile =
-      std::make_unique<VSmile>(std::move(sys_rom), std::move(cart_rom), has_art_nvram,
+      std::make_unique<VSmile>(std::move(sysrom), std::move(cartrom), cart_type,
                                std::move(initial_art_nvram), region_code, vtech_logo, video_timing);
   vsmile->Reset();
 
@@ -375,8 +424,8 @@ int RunEmulation(std::unique_ptr<VSmile::SysRomType> sys_rom,
   }
 
   // Flush Art Studio cartridge RAM to file if save path is defined
-  if (has_art_nvram && !art_nvram_save_path.empty()) {
-    std::ofstream art_nvram_save(art_nvram_save_path, std::ios::binary | std::ios::trunc);
+  if (cart_type == VSmile::CartType::ART_STUDIO && art_nvram_path.has_value()) {
+    std::ofstream art_nvram_save(art_nvram_path.value(), std::ios::binary | std::ios::trunc);
     if (!art_nvram_save.good()) {
       std::cerr << "Failed to open NVRAM save file for writing" << std::endl;
     } else {

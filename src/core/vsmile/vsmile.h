@@ -17,11 +17,16 @@ public:
   using SysRomType = std::array<word_t, 1024 * 1024>;
   using ArtNvramType = std::array<word_t, 128 * 1024>;
 
+  enum class CartType {
+    STANDARD,
+    ART_STUDIO,
+  };
+
   using JoyInput = VSmileJoy::JoyInput;
   using JoyLedStatus = VSmileJoy::JoyLedStatus;
 
   VSmile(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-         bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, unsigned region_code,
+         CartType cart_type, std::unique_ptr<ArtNvramType> initial_art_nvram, unsigned region_code,
          bool vtech_logo, VideoTiming video_timing);
 
   void RunFrame();
@@ -45,7 +50,7 @@ private:
   class Io : public Spg200Io {
   public:
     Io(std::unique_ptr<SysRomType> sys_rom, std::unique_ptr<CartRomType> cart_rom,
-       bool has_art_nvram, std::unique_ptr<ArtNvramType> initial_art_nvram, unsigned region_code,
+       CartType cart_type, std::unique_ptr<ArtNvramType> initial_art_nvram, unsigned region_code,
        bool vtech_logo, VSmile& vsmile);
 
     void RunCycles(int cycles) override;
@@ -80,7 +85,7 @@ private:
 
     std::unique_ptr<SysRomType> sys_rom_;
     std::unique_ptr<CartRomType> cart_rom_;
-    bool has_art_nvram_ = false;
+    CartType cart_type_ = CartType::STANDARD;
     std::unique_ptr<ArtNvramType> art_nvram_;
     VSmileJoy joy_;
 
