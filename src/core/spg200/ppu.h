@@ -79,7 +79,7 @@ private:
   void DrawTileLine(int screen_y, int screen_x_start, addr_t addr, int tile_width, unsigned palette,
                     bool hflip, unsigned bits_per_pixel, bool blend);
   union Color {
-    uint16_t raw;
+    uint16_t raw = 0;
     Bitfield<15, 1> transparent;
     Bitfield<10, 5> r;
     Bitfield<5, 5> g;
