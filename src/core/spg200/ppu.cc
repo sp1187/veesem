@@ -347,7 +347,9 @@ void Ppu::UpdateIrq() {
 }
 
 void Ppu::DrawLine(int scanline) {
-  framebuffer_[scanline].fill({0});
+  Color transparent;
+  transparent.transparent = 1;
+  framebuffer_[scanline].fill(transparent);
 
   for (unsigned layer = 0; layer < 4; layer++) {
     for (unsigned bg = 0; bg < 2; bg++) {
@@ -368,13 +370,20 @@ void Ppu::DrawLine(int scanline) {
       }
     }
   }
-  // write blended sprites last
+  // Draw blended sprites last
   if (sprite_enable_ && view_settings_.show_sprites) {
     for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
       const auto& sprite = sprite_data_[sprite_index];
       if (sprite.ch && sprite.attr.blend) {
         DrawSpriteScanline(sprite_index, scanline);
       }
+    }
+  }
+
+  // Replace all remaining transparent pixels with black
+  for (auto& pixel : framebuffer_[scanline]) {
+    if (pixel.transparent) {
+      pixel = Color{};
     }
   }
 }
@@ -536,9 +545,11 @@ void Ppu::DrawTileLine(int screen_y, int screen_x_start, addr_t line_addr, int t
 
     if (blend) {
       Color oldpixel = framebuffer_[screen_y][screen_x];
-      newpixel.r = BlendInterpolate(oldpixel.r, newpixel.r, blend_level_);
-      newpixel.g = BlendInterpolate(oldpixel.g, newpixel.g, blend_level_);
-      newpixel.b = BlendInterpolate(oldpixel.b, newpixel.b, blend_level_);
+      if (!oldpixel.transparent) {
+        newpixel.r = BlendInterpolate(oldpixel.r, newpixel.r, blend_level_);
+        newpixel.g = BlendInterpolate(oldpixel.g, newpixel.g, blend_level_);
+        newpixel.b = BlendInterpolate(oldpixel.b, newpixel.b, blend_level_);
+      }
     }
 
     framebuffer_[screen_y][screen_x] = newpixel;
