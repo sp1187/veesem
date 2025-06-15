@@ -56,6 +56,8 @@ void GraphicsState::DrawFrame(uint8_t* fb, bool bilinear) {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5, 320, 240, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, fb);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, bilinear ? GL_LINEAR : GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bilinear ? GL_LINEAR : GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   glBegin(GL_QUADS);
   glTexCoord2f(0, 0);
