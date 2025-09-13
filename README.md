@@ -55,6 +55,9 @@ Currently only the standard V.Smile controller is supported.
 ### Steps
 1. Create a `build` directory and change working directory to it.
 2. Run `cmake .. -DCMAKE_BUILD_TYPE=Release`.
+    - ⚠️ If you do not specify `-DCMAKE_BUILD_TYPE=Release` and have no optimizing flags
+      defined in the `CXXFLAGS` environment variable, the emulation speed of your
+      build will be significantly slower and may lag frequently.
     - When building on Windows, you may need to specify the path of your SDL2
       MinGW development package directory with `-DCMAKE_MODULE_PATH`,
       e.g. `-DCMAKE_MODULE_PATH=~/SDL2-2.30.11/x86_64-w64-mingw32/`.
