@@ -35,9 +35,9 @@ jobs:
       matrix:
         include:
           - name: macos-intel
-            os: macos-13
+            os: macos-15-intel
           - name: macos-arm
-            os: macos-14
+            os: macos-15
 
     runs-on: ${{matrix.os}}
 
