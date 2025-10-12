@@ -165,19 +165,22 @@ int Cpu::Step() {
       case 3:  // muls us
         if (iw.rd != REG_PC && iw.rs != REG_PC) {
           const int n = iw.muls_n ? iw.muls_n : 16;
-          int32_t sum = 0;
+          int64_t sum = 0;
 
-          word_t old_val2 = 0;
+          word_t old_val1 = 0;
           for (int i = 0; i < n; i++) {
-            word_t val1 = bus_.ReadWord(regs_[iw.rd]++);
-            word_t val2 = bus_.ReadWord(regs_[iw.rs]++);
+            word_t val1 = bus_.ReadWord(regs_[iw.rd]);
+            word_t val2 = bus_.ReadWord(regs_[iw.rs]);
             sum += val1 * static_cast<int16_t>(val2);
 
             if (fir_mov_) {
               if (i > 0)
-                bus_.WriteWord(regs_[iw.rd - 1], old_val2);
-              old_val2 = val2;
+                bus_.WriteWord(regs_[iw.rd], old_val1);
+              old_val1 = val1;
             }
+
+            regs_[iw.rd]++;
+            regs_[iw.rs]++;
           }
 
           regs_[REG_R3] = sum & 0xffff;
@@ -236,19 +239,22 @@ int Cpu::Step() {
       case 7:  // muls ss
         if (iw.rd != REG_PC && iw.rs != REG_PC) {
           const int n = iw.muls_n ? iw.muls_n : 16;
-          int32_t sum = 0;
+          int64_t sum = 0;
 
-          word_t old_val2 = 0;
+          word_t old_val1 = 0;
           for (int i = 0; i < n; i++) {
-            word_t val1 = bus_.ReadWord(regs_[iw.rd]++);
-            word_t val2 = bus_.ReadWord(regs_[iw.rs]++);
+            word_t val1 = bus_.ReadWord(regs_[iw.rd]);
+            word_t val2 = bus_.ReadWord(regs_[iw.rs]);
             sum += static_cast<int16_t>(val1) * static_cast<int16_t>(val2);
 
             if (fir_mov_) {
               if (i > 0)
-                bus_.WriteWord(regs_[iw.rd - 1], old_val2);
-              old_val2 = val2;
+                bus_.WriteWord(regs_[iw.rd], old_val1);
+              old_val1 = val1;
             }
+
+            regs_[iw.rd]++;
+            regs_[iw.rs]++;
           }
 
           regs_[REG_R3] = sum & 0xffff;
