@@ -217,6 +217,8 @@ private:
 
   uint16_t wave_out_l_;
   uint16_t wave_out_r_;
+  uint16_t wave_in_l_;
+  uint16_t wave_in_r_;
 
   uint8_t main_volume_;
   uint16_t beat_base_count_;

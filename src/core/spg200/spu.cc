@@ -36,6 +36,8 @@ void Spu::Reset() {
   main_volume_ = 0;
   wave_out_l_ = 0x8000;
   wave_out_r_ = 0x8000;
+  wave_in_l_ = 0x8000;
+  wave_in_r_ = 0x8000;
   beat_base_count_ = 0;
   current_beat_base_count_ = 0;
   beat_count_.raw = 0;
@@ -95,6 +97,9 @@ void Spu::GenerateSample() {
     left_out += (sample * left_pan * static_cast<int>(pan.volume)) >> 14;
     right_out += (sample * right_pan * static_cast<int>(pan.volume)) >> 14;
   }
+
+  left_out += (wave_in_l_ - 0x8000);
+  right_out += (wave_in_r_ - 0x8000);
 
   int16_t left_final = (left_out >> (4 - control_.high_volume)) * main_volume_ >> 7;
   int16_t right_final = (right_out >> (4 - control_.high_volume)) * main_volume_ >> 7;
@@ -666,8 +671,13 @@ word_t Spu::GetChannelStatus() {
   return channel_enable_.to_ulong() & ~channel_stop_.to_ulong();
 }
 
-void Spu::SetWaveInLeft(word_t value) {}
-void Spu::SetWaveInRight(word_t value) {}
+void Spu::SetWaveInLeft(word_t value) {
+  wave_in_l_ = value;
+}
+
+void Spu::SetWaveInRight(word_t value) {
+  wave_in_r_ = value;
+}
 
 word_t Spu::GetWaveOutLeft() {
   return wave_out_l_;
