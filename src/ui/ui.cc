@@ -12,6 +12,7 @@
 
 #include "core/vsmile/vsmile.h"
 #include "graphics_state.h"
+#include "wav_writer.h"
 
 static struct UiSettings {
   bool fullscreen = false;
@@ -250,9 +251,9 @@ static void DrawGui(GraphicsState& graphics_state, VSmile& vsmile) {
 int RunEmulation(std::optional<std::string> sysrom_path, std::optional<std::string> cartrom_path,
                  VSmile::CartType cart_type, std::optional<std::string> art_nvram_path,
                  unsigned region_code, bool vtech_logo, VideoTiming video_timing, bool show_leds,
-                 bool show_fps) {
+                 bool show_fps, std::optional<std::string> audio_dump_path) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) < 0) {
-    std::cerr << "Unable to initialize SDL";
+    std::cerr << "Error: Unable to initialize SDL" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -341,6 +342,19 @@ int RunEmulation(std::optional<std::string> sysrom_path, std::optional<std::stri
   ui.show_leds = show_leds;
   ui.show_fps = show_fps;
 
+  std::optional<WavWriter> audio_dump;
+
+  if (audio_dump_path) {
+    audio_dump.emplace(*audio_dump_path);
+
+    if (audio_dump->IsOpen()) {
+      audio_dump->WriteHeader();
+    } else {
+      std::cerr << "Failed to create WAV file for audio dumping" << std::endl;
+      audio_dump.reset();
+    }
+  }
+
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
       ImGui_ImplSDL2_ProcessEvent(&e);
@@ -391,6 +405,10 @@ int RunEmulation(std::optional<std::string> sysrom_path, std::optional<std::stri
       auto ab = vsmile->GetAudio();
       SDL_AudioStreamPut(audio_stream, ab.data(), ab.size() * sizeof(uint16_t));
 
+      if (audio_dump) {
+        audio_dump->WriteData(ab);
+      }
+
       if (ui.show_spu_output_window) {
         for (size_t i = 0; i < ab.size(); i += 2) {
           ui.audio_samples_left[ui.audio_samples_offset] = (ab[i] - 32768);
@@ -420,6 +438,14 @@ int RunEmulation(std::optional<std::string> sysrom_path, std::optional<std::stri
     }
     if (!ui.run_emulation) {
       SDL_Delay(20);
+    }
+  }
+
+  // Finalize and flush audio dump output
+  if (audio_dump) {
+    audio_dump->Close();
+    if (!audio_dump->IsGood()) {
+      std::cerr << "Failed to write data into WAV file for audio dumping" << std::endl;
     }
   }
 

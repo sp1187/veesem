@@ -26,10 +26,12 @@ void PrintUsage(std::string exec_name) {
       << std::endl
       << "  -novtech          Set jumpers disabling VTech logo in system ROM intro" << std::endl
       << std::endl
-      << "  -leds            Show controller LEDs at startup" << std::endl
-      << "  -fps             Show emulation FPS at startup" << std::endl
+      << "  -leds             Show controller LEDs at startup" << std::endl
+      << "  -fps              Show emulation FPS at startup" << std::endl
       << std::endl
-      << "  -help            Print this help text" << std::endl;
+      << "  -dump-audio FILE  Dump the emulated audio into FILE (saved in WAV format)" << std::endl
+      << std::endl
+      << "  -help             Print this help text" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -51,6 +53,7 @@ int main(int argc, char** argv) {
   std::optional<std::string> cartrom_path;
   std::optional<std::string> art_nvram_path;
   unsigned region_code = 0xe;  // UK English as default
+  std::optional<std::string> audio_dump_path;
   const std::vector<std::string_view> args(argv + 1, argv + argc);
 
   size_t argpos = 0;
@@ -105,6 +108,12 @@ int main(int argc, char** argv) {
         show_leds = true;
       } else if (arg == "-fps") {
         show_fps = true;
+      } else if (arg == "-dump-audio") {
+        if (argpos + 1 >= args.size()) {
+          std::cerr << "Error: Expected audio dump path" << std::endl;
+          return EXIT_FAILURE;
+        }
+        audio_dump_path = args[++argpos];
       } else if (arg == "--") {
         read_flags = false;
       } else {
@@ -123,5 +132,5 @@ int main(int argc, char** argv) {
   }
 
   return RunEmulation(sysrom_path, cartrom_path, cart_type, art_nvram_path, region_code, vtech_logo,
-                      video_timing, show_leds, show_fps);
+                      video_timing, show_leds, show_fps, audio_dump_path);
 }

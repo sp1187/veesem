@@ -49,6 +49,8 @@ add_library(veesem_ui STATIC
   ui/graphics_state.h
   ui/ui.cc
   ui/ui.h
+  ui/wav_writer.cc
+  ui/wav_writer.h
 )
 
 target_link_libraries(veesem_ui
