@@ -98,11 +98,11 @@ void Spu::GenerateSample() {
     right_out += (sample * right_pan * static_cast<int>(pan.volume)) >> 14;
   }
 
-  left_out += (wave_in_l_ - 0x8000);
-  right_out += (wave_in_r_ - 0x8000);
+  left_out >>= (4 - control_.high_volume);
+  right_out >>= (4 - control_.high_volume);
 
-  int16_t left_final = (left_out >> (4 - control_.high_volume)) * main_volume_ >> 7;
-  int16_t right_final = (right_out >> (4 - control_.high_volume)) * main_volume_ >> 7;
+  int16_t left_final = (left_out + (wave_in_l_ - 0x8000)) * main_volume_ >> 7;
+  int16_t right_final = (right_out + (wave_in_r_ - 0x8000)) * main_volume_ >> 7;
 
   wave_out_l_ = left_final ^ 0x8000;
   wave_out_r_ = right_final ^ 0x8000;
