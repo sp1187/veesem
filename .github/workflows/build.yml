@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -24,7 +24,7 @@ jobs:
       run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel $(nproc)
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: veesem-ubuntu
         path: |
@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -55,7 +55,7 @@ jobs:
       run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: veesem-${{matrix.name}}
         path: |
@@ -68,7 +68,7 @@ jobs:
         shell: msys2 {0}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - uses: msys2/setup-msys2@v2
       with:
@@ -95,7 +95,7 @@ jobs:
         cp build/veesem.exe upload/
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: veesem-windows
         path: |
