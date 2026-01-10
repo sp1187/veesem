@@ -9,6 +9,7 @@ public:
   void Init(int width, int height);
   void Resize(int width, int height, bool resize_window = true);
   void DrawFrame(uint8_t* fb, bool bilinear = false);
+  void ClearFrame();
   void SwapWindow();
   SDL_Window* GetWindow();
   SDL_GLContext GetGlContext();

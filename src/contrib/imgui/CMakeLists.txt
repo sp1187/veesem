@@ -7,6 +7,8 @@ add_library(imgui STATIC
   imgui_impl_sdl2.cpp
   imgui_impl_sdl2.h
   imgui_internal.h
+  imgui_stdlib.cpp
+  imgui_stdlib.h
   imgui_tables.cpp
   imgui_widgets.cpp
   imgui.cpp

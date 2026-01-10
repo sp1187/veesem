@@ -49,8 +49,7 @@ void GraphicsState::Resize(int width, int height, bool resize_window) {
 }
 
 void GraphicsState::DrawFrame(uint8_t* fb, bool bilinear) {
-  glClearColor(0, 0, 0, 1);
-  glClear(GL_COLOR_BUFFER_BIT);
+  ClearFrame();
 
   glBindTexture(GL_TEXTURE_2D, texture_id_);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB5, 320, 240, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, fb);
@@ -70,6 +69,11 @@ void GraphicsState::DrawFrame(uint8_t* fb, bool bilinear) {
   glVertex2f(margin_width_, window_height_ - margin_height_);
   glEnd();
   glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void GraphicsState::ClearFrame() {
+  glClearColor(0, 0, 0, 1);
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void GraphicsState::SwapWindow() {
