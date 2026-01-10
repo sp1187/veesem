@@ -4,6 +4,9 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(contrib/imgui)
 
+SET(NFD_PORTAL ON CACHE BOOL "Use dbus for native file dialog instead of gtk")
+add_subdirectory(contrib/nativefiledialog-extended)
+
 add_library(veesem_core STATIC
   core/common.h
   core/spg200/adc.cc
@@ -54,6 +57,7 @@ add_library(veesem_ui STATIC
 target_link_libraries(veesem_ui
   veesem_core
   imgui
+  nfd
   SDL2::SDL2
   OpenGL::GL
 )
