@@ -368,14 +368,13 @@ void Ppu::DrawLine(int scanline) {
           DrawSpriteScanline(sprite_index, scanline);
         }
       }
-    }
-  }
-  // Draw blended sprites last
-  if (sprite_enable_ && view_settings_.show_sprites) {
-    for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
-      const auto& sprite = sprite_data_[sprite_index];
-      if (sprite.ch && sprite.attr.blend) {
-        DrawSpriteScanline(sprite_index, scanline);
+
+      // Draw blended sprites last
+      for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
+        const auto& sprite = sprite_data_[sprite_index];
+        if (sprite.ch && sprite.attr.blend && sprite.attr.depth == layer) {
+          DrawSpriteScanline(sprite_index, scanline);
+        }
       }
     }
   }
