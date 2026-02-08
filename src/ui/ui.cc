@@ -28,6 +28,7 @@ static struct UiSettings {
   bool show_leds = false;
   bool show_fps = false;
   bool bilinear = true;
+  bool allow_background_input = false;
   bool show_ppu_view_settings_window = false;
   bool show_spu_output_window = false;
   bool show_load_window = false;
@@ -434,6 +435,13 @@ static void DrawGui() {
       ImGui::Separator();
       ImGui::MenuItem("Show PPU View Settings", "", &ui.show_ppu_view_settings_window);
       ImGui::MenuItem("Show SPU Output", "", &ui.show_spu_output_window);
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Settings")) {
+      if (ImGui::MenuItem("Allow Background Input", "", &ui.allow_background_input)) {
+        SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
+                    ui.allow_background_input ? "1" : "0");
+      }
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help")) {
