@@ -7,8 +7,10 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+#include "imgui.h"
 #include "imgui_impl_opengl2.h"
 #include "imgui_impl_sdl2.h"
+#include "imgui_memory_editor.h"
 #include "imgui_stdlib.h"
 
 #include "nfd.hpp"
@@ -31,6 +33,7 @@ static struct UiSettings {
   bool show_ppu_view_settings_window = false;
   bool show_spu_output_window = false;
   bool show_load_window = false;
+  bool show_memory_editor = false;
 
   std::array<float, 281250 / 4> audio_samples_left;
   std::array<float, 281250 / 4> audio_samples_right;
@@ -434,6 +437,8 @@ static void DrawGui() {
       ImGui::Separator();
       ImGui::MenuItem("Show PPU View Settings", "", &ui.show_ppu_view_settings_window);
       ImGui::MenuItem("Show SPU Output", "", &ui.show_spu_output_window);
+      ImGui::Separator();
+      ImGui::MenuItem("Show Memory Editor", "", &ui.show_memory_editor);
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Help")) {
@@ -487,6 +492,26 @@ static void DrawGui() {
 
   if (ui.show_load_window) {
     DrawLoadWindow();
+  }
+
+  if (ui.show_memory_editor) {
+    static MemoryEditor memory_editor;
+    if (vsmile) {
+      memory_editor.ReadFn = [](const ImU16* mem, size_t off, void* user_data) -> ImU16 {
+        return vsmile->ReadFromMemory(off);
+      };
+      memory_editor.WriteFn = [](ImU16* mem, size_t off, ImU16 d, void* user_data) {
+        vsmile->WriteToMemory(off, d);
+      };
+      memory_editor.ReadOnly = false;
+    } else {
+      memory_editor.ReadFn = [](const ImU16* mem, size_t off, void* user_data) -> ImU16 {
+        return 0;
+      };
+      memory_editor.ReadOnly = true;
+    }
+    memory_editor.DrawWindow("Memory Editor", 0, (1 << 22));
+    ui.show_memory_editor = memory_editor.Open;
   }
 
   if (ui.show_leds) {

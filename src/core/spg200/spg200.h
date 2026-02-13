@@ -40,6 +40,9 @@ public:
   word_t ReadWord(addr_t addr) override;
   void WriteWord(addr_t addr, word_t val) override;
 
+  // Read variant without side effects, used for memory editor
+  word_t PeekWord(addr_t addr);
+
 private:
   uint64_t cycle_count_ = 0;
 

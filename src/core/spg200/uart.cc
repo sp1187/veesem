@@ -140,6 +140,10 @@ word_t Uart::Rx() {
   return rx_buf_;
 }
 
+word_t Uart::PeekRx() {
+  return rx_buf_;
+}
+
 void Uart::RxStart(uint8_t value) {
   if (rx_counter_)
     return;

@@ -68,6 +68,14 @@ const VSmile::ArtNvramType* VSmile::GetArtNvram() {
   return io_.art_nvram_.get();
 }
 
+word_t VSmile::ReadFromMemory(addr_t addr) {
+  return spg200_.PeekWord(addr);
+}
+
+void VSmile::WriteToMemory(addr_t addr, word_t value) {
+  spg200_.WriteWord(addr, value);
+}
+
 void VSmile::SetPpuViewSettings(PpuViewSettings& ppu_view_settings) {
   spg200_.SetPpuViewSettings(ppu_view_settings);
 }
