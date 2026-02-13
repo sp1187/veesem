@@ -37,6 +37,9 @@ public:
   std::span<uint16_t> GetAudio();
   const ArtNvramType* GetArtNvram();
 
+  word_t ReadFromMemory(addr_t addr);
+  void WriteToMemory(addr_t addr, word_t value);
+
   void SetPpuViewSettings(PpuViewSettings& ppu_view_settings);
 
   void UpdateJoystick(const JoyInput& joy_input);

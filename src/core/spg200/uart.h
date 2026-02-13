@@ -32,6 +32,7 @@ public:
   void Tx(word_t value);
 
   word_t Rx();
+  word_t PeekRx();  // variant without side effects
 
   void RxStart(uint8_t value);
 

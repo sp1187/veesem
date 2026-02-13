@@ -708,4 +708,11 @@ void Spg200::WriteWord(addr_t addr, word_t value) {
     default:
       return;  // ignore writes
   }
-};
+}
+
+word_t Spg200::PeekWord(addr_t addr) {
+  if (addr == 0x3d36) {
+    return uart_.PeekRx();
+  }
+  return ReadWord(addr);
+}
