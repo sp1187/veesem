@@ -78,6 +78,12 @@ static VSmile::JoyInput ReadController(SDL_GameController* pad) {
 
 static VSmile::JoyInput ReadControllerFromKeyboard() {
   VSmile::JoyInput input;
+
+  ImGuiIO& io = ImGui::GetIO();
+  if (io.WantCaptureMouse) {
+    return input;
+  }
+
   auto keys = SDL_GetKeyboardState(nullptr);
   input.red = keys[SDL_SCANCODE_Z];
   input.yellow = keys[SDL_SCANCODE_X];
