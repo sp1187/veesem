@@ -39,6 +39,7 @@ void PrintUsage(std::string exec_name) {
 int main(int argc, char** argv) {
   SystemConfig system_config;
   system_config.cart_type = VSmile::CartType::STANDARD;
+  system_config.use_dummy_sysrom = true;
   system_config.region_code = 0xe;  // UK English as default
   system_config.vtech_logo = true;
   system_config.video_timing = VideoTiming::PAL;
@@ -64,6 +65,7 @@ int main(int argc, char** argv) {
           return EXIT_FAILURE;
         }
         system_config.sysrom_path = args[++argpos];
+        system_config.use_dummy_sysrom = false;
       } else if (arg == "-art-nvram") {
         system_config.cart_type = VSmile::CartType::ART_STUDIO;
         if (argpos + 1 >= args.size()) {

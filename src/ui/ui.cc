@@ -178,7 +178,7 @@ static std::optional<std::string> LoadVSmile(const SystemConfig& config) {
                  [](uint16_t x) -> uint16_t { return SDL_SwapLE16(x); });
 
   auto sysrom = std::make_unique<VSmile::SysRomType>();
-  if (config.sysrom_path.has_value()) {
+  if (!config.use_dummy_sysrom) {
     std::ifstream sysrom_file(*config.sysrom_path, std::ios::binary);
     if (!sysrom_file.good()) {
       return "Could not open system ROM file";
@@ -231,7 +231,7 @@ static void DrawLoadWindow() {
 
   static VideoTiming video_timing = cur_system_config.video_timing;
   static bool enable_csb2_nvram = cur_system_config.cart_type == VSmile::CartType::ART_STUDIO;
-  static bool use_dummy_sysrom = sysrom_path.empty();
+  static bool use_dummy_sysrom = cur_system_config.use_dummy_sysrom;
   static int region_code = cur_system_config.region_code;
   static bool vtech_logo = cur_system_config.vtech_logo;
 
@@ -334,6 +334,7 @@ static void DrawLoadWindow() {
       system_config.sysrom_path = sysrom_path;
     if (!csb2_nvram_save_path.empty())
       system_config.csb2_nvram_save_path = csb2_nvram_save_path;
+    system_config.use_dummy_sysrom = use_dummy_sysrom;
 
     system_config.cart_type =
         enable_csb2_nvram ? VSmile::CartType::ART_STUDIO : VSmile::CartType::STANDARD;
@@ -357,7 +358,7 @@ static void DrawLoadWindow() {
   auto center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
   if (ImGui::BeginPopupModal("Load Error", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-    ImGui::Text(load_error_string.c_str());
+    ImGui::Text("%s", load_error_string.c_str());
     ImGui::Dummy(ImVec2(0.0f, 5.0f));
     if (ImGui::Button("OK")) {
       ImGui::CloseCurrentPopup();

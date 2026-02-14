@@ -10,6 +10,7 @@ struct SystemConfig {
   std::optional<std::string> csb2_nvram_save_path;
   VSmile::CartType cart_type = VSmile::CartType::STANDARD;
   VideoTiming video_timing = VideoTiming::PAL;
+  bool use_dummy_sysrom = true;
   unsigned region_code = 0xe;
   bool vtech_logo = true;
 };
