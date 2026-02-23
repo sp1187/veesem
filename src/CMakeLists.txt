@@ -38,6 +38,8 @@ add_library(veesem_core STATIC
   core/spg200/types.h
   core/spg200/uart.cc
   core/spg200/uart.h
+  core/spg200/watchdog.cc
+  core/spg200/watchdog.h
   core/vsmile/vsmile.cc
   core/vsmile/vsmile.h
   core/vsmile/vsmile_common.h

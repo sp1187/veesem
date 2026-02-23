@@ -14,7 +14,8 @@ Spg200::Spg200(VideoTiming video_timing, Spg200Io& io)
       gpio_(io),
       adc_(irq_, io),
       uart_(irq_, io),
-      dma_(*this) {}
+      dma_(*this),
+      watchdog_(cpu_) {}
 
 void Spg200::Reset() {
   ram_.fill(0);
@@ -30,14 +31,17 @@ void Spg200::Reset() {
   dma_.Reset();
   random1_.Set(0x1418);
   random2_.Set(0x1658);
+  watchdog_.Reset();
+  SetSystemControl(0);
 }
 
 void Spg200::Step() {}
 
 void Spg200::RunFrame() {
+  int cycles_in_frame = 0;
   for (;;) {
     int cycles = cpu_.Step();
-    cycle_count_ += cycles;
+    cycles_in_frame += cycles;
     // cpu_.PrintRegisterState();
 
     io_.RunCycles(cycles);
@@ -48,6 +52,8 @@ void Spg200::RunFrame() {
     if (ppu_.RunCycles(cycles))
       break;
   }
+  // The watchdog timer can be checked less often
+  watchdog_.RunCycles(cycles_in_frame);
 }
 
 std::span<uint8_t> Spg200::GetPicture() const {
@@ -296,7 +302,8 @@ word_t Spg200::ReadWord(addr_t addr) {
       return timer_.GetTimerBEnabled();
     case 0x3d1c:
       return ppu_.GetLineCounter();
-    /* 0x3d20 - System control */
+    case 0x3d20:
+      return GetSystemControl();
     case 0x3d21:
       return irq_.GetIoIrqControl();
     case 0x3d22:
@@ -646,7 +653,9 @@ void Spg200::WriteWord(addr_t addr, word_t value) {
     case 0x3d19:
       timer_.ClearTimerBIrq();
       return;
-    /* 0x3d20 - System control */
+    case 0x3d20:
+      SetSystemControl(value);
+      return;
     case 0x3d21:
       irq_.SetIoIrqControl(value);
       return;
@@ -656,7 +665,9 @@ void Spg200::WriteWord(addr_t addr, word_t value) {
     case 0x3d23:
       extmem_.SetControl(value);
       return;
-    /* 0x3d24 - Watchdog clear */
+    case 0x3d24:
+      watchdog_.ClearTimer(value);
+      return;
     case 0x3d25:
       adc_.SetControl(value);
       return;
@@ -715,4 +726,13 @@ word_t Spg200::PeekWord(addr_t addr) {
     return uart_.PeekRx();
   }
   return ReadWord(addr);
+}
+
+word_t Spg200::GetSystemControl() {
+  return system_ctrl_.raw;
+}
+
+void Spg200::SetSystemControl(word_t value) {
+  system_ctrl_.raw = value & SystemControl::WriteMask;
+  watchdog_.SetEnabled(system_ctrl_.watchdog_enable);
 }

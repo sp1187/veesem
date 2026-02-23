@@ -15,6 +15,7 @@
 #include "timer.h"
 #include "types.h"
 #include "uart.h"
+#include "watchdog.h"
 
 class Spg200Io;
 
@@ -44,12 +45,27 @@ public:
   word_t PeekWord(addr_t addr);
 
 private:
-  uint64_t cycle_count_ = 0;
+  word_t GetSystemControl();
+  void SetSystemControl(word_t value);
 
   const VideoTiming video_timing_;
   Spg200Io& io_;
 
   std::array<uint16_t, 0x2800> ram_ = {0};
+  union SystemControl {
+    word_t raw = 0;
+    Bitfield<15, 1> watchdog_enable;
+    Bitfield<14, 1> sleep_enable;
+    Bitfield<9, 1> lvr_output_enable;
+    Bitfield<8, 1> lvr_enable;
+    Bitfield<7, 1> two_volt_disable;
+    Bitfield<5, 2> lvd_voltage_select;
+    Bitfield<4, 1> timer_clock_disable;
+    Bitfield<2, 1> video_dac_disable;
+    Bitfield<1, 1> audio_dac_disable;
+
+    static const word_t WriteMask = 0xc3f6;
+  } system_ctrl_;
   Cpu cpu_;
   Ppu ppu_;
   Spu spu_;
@@ -62,4 +78,5 @@ private:
   Dma dma_;
   Random random1_;
   Random random2_;
+  Watchdog watchdog_;
 };
