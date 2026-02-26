@@ -30,10 +30,12 @@ void PrintUsage(std::string exec_name) {
       << std::endl
       << "  -novtech          Set jumpers disabling VTech logo in system ROM intro" << std::endl
       << std::endl
-      << "  -leds            Show controller LEDs at startup" << std::endl
-      << "  -fps             Show emulation FPS at startup" << std::endl
+      << "  -leds             Show controller LEDs at startup" << std::endl
+      << "  -fps              Show emulation FPS at startup" << std::endl
       << std::endl
-      << "  -help            Print this help text" << std::endl;
+      << "  -allow-bg-input   Allow gamepad input when window is backgrounded" << std::endl
+      << std::endl
+      << "  -help             Print this help text" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -47,6 +49,7 @@ int main(int argc, char** argv) {
   UiConfig ui_config;
   ui_config.show_leds = false;
   ui_config.show_fps = false;
+  ui_config.allow_background_input = false;
 
   bool read_flags = true;
   const std::vector<std::string_view> args(argv + 1, argv + argc);
@@ -105,6 +108,8 @@ int main(int argc, char** argv) {
         ui_config.show_leds = true;
       } else if (arg == "-fps") {
         ui_config.show_fps = true;
+      } else if (arg == "-allow-bg-input") {
+        ui_config.allow_background_input = true;
       } else if (arg == "--") {
         read_flags = false;
       } else {

@@ -19,6 +19,8 @@ veesem is an experimental V.Smile emulator. Game compatibility is generally quit
 * Visual options:
     * `-leds` - Show controller LEDs at startup
     * `-fps` - Show emulation FPS at startup
+* Other settings:
+    * `-allow-bg-input` - Allow gamepad input when window is backgrounded
 
 ## Controls
 

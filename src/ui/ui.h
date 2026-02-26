@@ -18,6 +18,7 @@ struct SystemConfig {
 struct UiConfig {
   bool show_leds = false;
   bool show_fps = false;
+  bool allow_background_input = false;
 };
 
 int RunEmulation(const SystemConfig& system_config, const UiConfig& ui_config);

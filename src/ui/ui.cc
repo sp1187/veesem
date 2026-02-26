@@ -30,6 +30,7 @@ static struct UiSettings {
   bool show_leds = false;
   bool show_fps = false;
   bool bilinear = true;
+  bool allow_background_input = false;
   bool show_ppu_view_settings_window = false;
   bool show_spu_output_window = false;
   bool show_load_window = false;
@@ -448,6 +449,13 @@ static void DrawGui() {
       ImGui::MenuItem("Show Memory Editor", "", &ui.show_memory_editor);
       ImGui::EndMenu();
     }
+    if (ImGui::BeginMenu("Settings")) {
+      if (ImGui::MenuItem("Allow Background Input", "", &ui.allow_background_input)) {
+        SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
+                    ui.allow_background_input ? "1" : "0");
+      }
+      ImGui::EndMenu();
+    }
     if (ImGui::BeginMenu("Help")) {
       if (ImGui::MenuItem("Website")) {
         SDL_OpenURL("http://github.com/sp1187/veesem");
@@ -579,6 +587,8 @@ int RunEmulation(const SystemConfig& system_config, const UiConfig& ui_config) {
 
   ui.show_leds = ui_config.show_leds;
   ui.show_fps = ui_config.show_fps;
+  ui.allow_background_input = ui_config.allow_background_input;
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, ui.allow_background_input ? "1" : "0");
 
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
