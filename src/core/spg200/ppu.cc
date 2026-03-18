@@ -16,6 +16,10 @@ inline int BlendInterpolate(int old_value, int new_value, int blend_level) {
 inline unsigned DivideRoundUp(unsigned dividend, unsigned divisor) {
   return (dividend / divisor) + !!(dividend % divisor);
 }
+
+inline uint8_t Rgb5ToRgb8(unsigned value) {
+  return (value << 3) | (value >> 2);
+}
 }  // namespace
 
 Ppu::Ppu(VideoTiming video_timing, BusInterface& bus, Irq& irq)
@@ -28,8 +32,7 @@ void Ppu::Reset() {
   cur_scanline_ = 0;
   scanline_clock_.Reset();
   frame_count_ = 0;
-  for (int scanline = 0; scanline < 240; scanline++)
-    framebuffer_[scanline].fill({0});
+  framebuffer_.fill({0});
 
   bg_data_.fill({});
   sprite_data_.fill({});
@@ -346,17 +349,18 @@ void Ppu::UpdateIrq() {
   irq_.SetPpuIrq(value);
 }
 
-void Ppu::DrawLine(int scanline) {
+void Ppu::DrawLine(int screen_y) {
   Color transparent;
   transparent.transparent = 1;
-  framebuffer_[scanline].fill(transparent);
+  Scanline scanline;
+  scanline.fill(transparent);
 
   for (unsigned layer = 0; layer < 4; layer++) {
     for (unsigned bg = 0; bg < 2; bg++) {
       if (!view_settings_.show_bg[bg])
         continue;
       if (bg_data_[bg].ctrl.enabled && bg_data_[bg].attr.depth == layer) {
-        DrawBgScanline(bg, scanline);
+        DrawBgScanline(scanline, bg, screen_y);
       }
     }
 
@@ -365,7 +369,7 @@ void Ppu::DrawLine(int scanline) {
       for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
         const auto& sprite = sprite_data_[sprite_index];
         if (sprite.ch && !sprite.attr.blend && sprite.attr.depth == layer) {
-          DrawSpriteScanline(sprite_index, scanline);
+          DrawSpriteScanline(scanline, sprite_index, screen_y);
         }
       }
 
@@ -373,21 +377,23 @@ void Ppu::DrawLine(int scanline) {
       for (int sprite_index = 0; sprite_index < 256; sprite_index++) {
         const auto& sprite = sprite_data_[sprite_index];
         if (sprite.ch && sprite.attr.blend && sprite.attr.depth == layer) {
-          DrawSpriteScanline(sprite_index, scanline);
+          DrawSpriteScanline(scanline, sprite_index, screen_y);
         }
       }
     }
   }
 
   // Replace all remaining transparent pixels with black
-  for (auto& pixel : framebuffer_[scanline]) {
-    if (pixel.transparent) {
-      pixel = Color{};
-    }
+  for (int screen_x = 0; screen_x < 320; screen_x++) {
+    auto& pixel = scanline[screen_x];
+    framebuffer_[320 * screen_y + screen_x] =
+        pixel.transparent ? 0
+                          : (Rgb5ToRgb8(pixel.r) << 24) | (Rgb5ToRgb8(pixel.g) << 16) |
+                                (Rgb5ToRgb8(pixel.b) << 8) | 0;
   }
 }
 
-void Ppu::DrawBgScanline(int bg_index, int screen_y) {
+void Ppu::DrawBgScanline(Scanline& scanline, int bg_index, int screen_y) {
   const auto& bg = bg_data_[bg_index];
 
   int virtual_y = screen_y;
@@ -411,7 +417,7 @@ void Ppu::DrawBgScanline(int bg_index, int screen_y) {
     const addr_t addr = addr_lo | (addr_hi << 16);
     const int bits_per_pixel = bg.ctrl.hicolor_mode ? 16 : (bg.attr.color_mode + 1) * 2;
     for (int screen_x = -scroll_x; screen_x < 320; screen_x += 512) {
-      DrawTileLine(screen_y, screen_x, addr, 512, bg.attr.palette, false, bits_per_pixel,
+      DrawTileLine(scanline, screen_x, addr, 512, bg.attr.palette, false, bits_per_pixel,
                    bg.ctrl.blend);
     }
 
@@ -459,11 +465,11 @@ void Ppu::DrawBgScanline(int bg_index, int screen_y) {
 
     const addr_t addr = CalculateLineSegmentAddr(bg.segment_ptr, ch, tile_y, tile_width,
                                                  tile_height, bits_per_pixel);
-    DrawTileLine(screen_y, screen_x, addr, tile_width, palette, hflip, bits_per_pixel, blend);
+    DrawTileLine(scanline, screen_x, addr, tile_width, palette, hflip, bits_per_pixel, blend);
   }
 }
 
-void Ppu::DrawSpriteScanline(int sprite, int screen_y) {
+void Ppu::DrawSpriteScanline(Scanline& scanline, int sprite, int screen_y) {
   const auto& sprite_data = sprite_data_[sprite];
   const int tile_width = 8 << sprite_data.attr.hsize;
   const int tile_height = 8 << sprite_data.attr.vsize;
@@ -479,11 +485,11 @@ void Ppu::DrawSpriteScanline(int sprite, int screen_y) {
 
   addr_t addr = CalculateLineSegmentAddr(sprite_segment_ptr_, sprite_data.ch, tile_y, tile_width,
                                          tile_height, bits_per_pixel);
-  DrawTileLine(screen_y, xpos, addr, tile_width, sprite_data.attr.palette, sprite_data.attr.hflip,
+  DrawTileLine(scanline, xpos, addr, tile_width, sprite_data.attr.palette, sprite_data.attr.hflip,
                bits_per_pixel, sprite_data.attr.blend);
 }
 
-void Ppu::DrawTileLine(int screen_y, int screen_x_start, addr_t line_addr, int tile_width,
+void Ppu::DrawTileLine(Scanline& scanline, int screen_x_start, addr_t line_addr, int tile_width,
                        unsigned palette, bool hflip, unsigned bits_per_pixel, bool blend) {
   int pixbuf_shift = -bits_per_pixel;
   uint32_t pixbuf = 0;
@@ -543,7 +549,7 @@ void Ppu::DrawTileLine(int screen_y, int screen_x_start, addr_t line_addr, int t
       continue;
 
     if (blend) {
-      Color oldpixel = framebuffer_[screen_y][screen_x];
+      Color oldpixel = scanline[screen_x];
       if (!oldpixel.transparent) {
         newpixel.r = BlendInterpolate(oldpixel.r, newpixel.r, blend_level_);
         newpixel.g = BlendInterpolate(oldpixel.g, newpixel.g, blend_level_);
@@ -551,7 +557,7 @@ void Ppu::DrawTileLine(int screen_y, int screen_x_start, addr_t line_addr, int t
       }
     }
 
-    framebuffer_[screen_y][screen_x] = newpixel;
+    scanline[screen_x] = newpixel;
   }
 }
 

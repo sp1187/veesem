@@ -72,12 +72,6 @@ public:
   std::span<uint8_t> GetFramebuffer() const;
 
 private:
-  void UpdateIrq();
-  void DrawLine(int y);
-  void DrawBgScanline(int bg_index, int y);
-  void DrawSpriteScanline(int sprite_index, int y);
-  void DrawTileLine(int screen_y, int screen_x_start, addr_t addr, int tile_width, unsigned palette,
-                    bool hflip, unsigned bits_per_pixel, bool blend);
   union Color {
     uint16_t raw = 0;
     Bitfield<15, 1> transparent;
@@ -87,7 +81,13 @@ private:
   };
 
   using Scanline = std::array<Color, 320>;
-  using Framebuffer = std::array<Scanline, 240>;
+  using Framebuffer = std::array<uint32_t, 320 * 240>;
+  void UpdateIrq();
+  void DrawLine(int screen_y);
+  void DrawBgScanline(Scanline& scanline, int bg_index, int screen_y);
+  void DrawSpriteScanline(Scanline& scanline, int sprite_index, int screen_y);
+  void DrawTileLine(Scanline& scanline, int screen_x_start, addr_t addr, int tile_width,
+                    unsigned palette, bool hflip, unsigned bits_per_pixel, bool blend);
 
   Framebuffer framebuffer_;
   const VideoTiming video_timing_;
