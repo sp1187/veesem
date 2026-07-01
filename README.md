@@ -1,5 +1,9 @@
 # veesem 
 
+<p align="center">
+  <img src="resources/veesem.svg" alt="veesem" width="128" height="128" />
+</p>
+
 veesem is an experimental V.Smile emulator. Game compatibility is generally quite good from what I have tested so far, though more features, a more advanced UI and better accuracy are future targets.
 
 ![In-game screenshot](screenshots/nallepuh.png)

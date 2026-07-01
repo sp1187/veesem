@@ -1,0 +1,19 @@
+[Desktop Entry]
+Type=Application
+Name=veesem
+Icon=veesem
+Version=0.2
+Exec=veesem %f
+Comment=V.Smile emulator
+Comment[da]=V.Smile-emulator
+Comment[de]=V.Smile-Emulator
+Comment[en]=V.Smile emulator
+Comment[es]=Emulador V.Smile
+Comment[fi]=V.Smile-emulaattori
+Comment[fr]=Émulateur V.Smile
+Comment[it]=Emulatore V.Smile
+Comment[nl]=V.Smile-emulator
+Comment[no]=V.Smile-emulator
+Comment[pt]=Emulador V.Smile
+Comment[sv]=V.Smile-emulator
+Categories=Game;Emulator;

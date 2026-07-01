@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <rect width="60" height="60" x="2" y="1" rx="6" ry="6" fill="#8888c4" />
+  <rect width="60" height="60" x="2" y="3" rx="6" ry="6" fill="#3c3c78" />
+  <rect width="60" height="60" x="2" y="2" rx="6" ry="6" fill="#5555aa" />
+  <circle r="20" cx="32" cy="40" fill="#eeeeee" />
+  <circle r="8" cx="32" cy="12" fill="#eeeeee" transform="rotate(-45, 32, 40)" />
+  <circle r="8" cx="32" cy="12" fill="#eeeeee" transform="rotate(-15, 32, 40)" />
+  <circle r="8" cx="32" cy="12" fill="#eeeeee" transform="rotate(15, 32, 40)" />
+  <circle r="8" cx="32" cy="12" fill="#eeeeee" transform="rotate(45, 32, 40)" />
+  <rect width="32" height="12" x="16" y="16" fill="#eeeeee" />
+  <circle r="18" cx="32" cy="40.5" fill="#805000" />
+  <circle r="18" cx="32" cy="40" fill="#ffa000" />
+  <circle r="6" cx="32" cy="12" fill="#800000" transform="translate(0,0.5) rotate(-45, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#c00000" transform="rotate(-45, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#706000" transform="translate(0,0.5) rotate(-15, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#e0c000" transform="rotate(-15, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#000060" transform="translate(0,0.5) rotate(15, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#0000c0" transform="rotate(15, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#006000" transform="translate(0,0.5) rotate(45, 32, 40)" />
+  <circle r="6" cx="32" cy="12" fill="#00c000" transform="rotate(45, 32, 40)" />
+</svg>
