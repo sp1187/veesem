@@ -71,4 +71,8 @@ target_link_libraries(veesem
   veesem_ui
 )
 
+if(WIN32)
+target_sources(veesem PRIVATE ../resources/veesem.rc)
+endif()
+
 install(TARGETS veesem DESTINATION bin)
