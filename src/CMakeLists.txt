@@ -54,6 +54,7 @@ add_library(veesem_ui STATIC
   ui/graphics_state.h
   ui/ui.cc
   ui/ui.h
+  ui/version.h
 )
 
 target_link_libraries(veesem_ui

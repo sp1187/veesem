@@ -18,6 +18,7 @@
 
 #include "core/vsmile/vsmile.h"
 #include "graphics_state.h"
+#include "version.h"
 
 static struct UiSettings {
   bool fullscreen = false;
@@ -35,6 +36,7 @@ static struct UiSettings {
   bool show_spu_output_window = false;
   bool show_load_window = false;
   bool show_memory_editor = false;
+  bool show_about_window = false;
 
   std::array<float, 281250 / 4> audio_samples_left;
   std::array<float, 281250 / 4> audio_samples_right;
@@ -460,10 +462,14 @@ static void DrawGui() {
       if (ImGui::MenuItem("Website")) {
         SDL_OpenURL("http://github.com/sp1187/veesem");
       }
+      if (ImGui::MenuItem("About")) {
+        ui.show_about_window = true;
+      }
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
   }
+
   if (ui.show_ppu_view_settings_window) {
     ImGui::Begin("PPU View", &ui.show_ppu_view_settings_window, ImGuiWindowFlags_AlwaysAutoResize);
     bool updated = false;
@@ -527,6 +533,32 @@ static void DrawGui() {
     }
     memory_editor.DrawWindow("Memory Editor", 0, (1 << 22));
     ui.show_memory_editor = memory_editor.Open;
+  }
+
+  if (ui.show_about_window) {
+    ImGui::SetNextWindowSize(ImVec2(400, 0), 0);
+    ImGui::Begin("About", &ui.show_about_window);
+    ImGui::Text("veesem - V.Smile Emulator");
+    ImGui::TextLinkOpenURL("https://github.com/sp1187/veesem", "https://github.com/sp1187/veesem");
+    ImGui::Text("Version %s", VEESEM_VERSION);
+
+    if (ImGui::CollapsingHeader("License", ImGuiTreeNodeFlags_None)) {
+      ImGui::TextWrapped(
+          "Copyright © 2024-2026 Simon Eriksson"
+          "\n\n"
+          "Permission to use, copy, modify, and/or distribute this software for any "
+          "purpose with or without fee is hereby granted, provided that the above "
+          "copyright notice and this permission notice appear in all copies. "
+          "\n\n"
+          "THE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES "
+          "WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF "
+          "MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR "
+          "ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES "
+          "WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN "
+          "ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF "
+          "OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. ");
+    }
+    ImGui::End();
   }
 
   if (ui.show_leds) {

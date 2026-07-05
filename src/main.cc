@@ -7,12 +7,11 @@
 
 #include "core/spg200/types.h"
 #include "ui/ui.h"
-
-#define VERSION "0.1"
+#include "ui/version.h"
 
 void PrintUsage(std::string exec_name) {
   std::cout
-      << "veesem (V.Smile emulator) version " VERSION << std::endl
+      << "veesem (V.Smile emulator) version " << VEESEM_VERSION << std::endl
       << "Website: http://github.com/sp1187/veesem" << std::endl
       << std::endl
       << "Usage: " << exec_name << " [OPTIONS] CARTROM" << std::endl
