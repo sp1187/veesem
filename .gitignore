@@ -1,5 +1,9 @@
 *.d
 *.o
+*.a
 veesem
+veesem.exe
 .vscode
 build/
+CMakeFiles/
+cmake_install.cmake
