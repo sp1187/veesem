@@ -23,7 +23,7 @@ void Watchdog::SetEnabled(bool enable) {
   enabled_ = enable;
 }
 
-void Watchdog::ClearTimer(word_t value) {
+void Watchdog::ClearTimer(Word value) {
   if (!enabled_ || value != 0x55aa)
     return;
 

@@ -14,25 +14,25 @@ public:
   void Reset();
   void RunCycles(int cycles);
 
-  word_t GetControl();
-  void SetControl(word_t value);
+  Word GetControl();
+  void SetControl(Word value);
 
-  word_t GetStatus();
-  void SetStatus(word_t value);
+  Word GetStatus();
+  void SetStatus(Word value);
 
   void SoftReset();
 
-  word_t GetBaudLo();
-  void SetBaudLo(word_t value);
+  Word GetBaudLo();
+  void SetBaudLo(Word value);
 
-  word_t GetBaudHi();
-  void SetBaudHi(word_t value);
+  Word GetBaudHi();
+  void SetBaudHi(Word value);
 
-  word_t GetTx();
-  void Tx(word_t value);
+  Word GetTx();
+  void Tx(Word value);
 
-  word_t Rx();
-  word_t PeekRx();  // variant without side effects
+  Word Rx();
+  Word PeekRx();  // variant without side effects
 
   void RxStart(uint8_t value);
 
@@ -41,7 +41,7 @@ private:
   Spg200Io& io_;
 
   union UartControl {
-    word_t raw;
+    Word raw;
     Bitfield<7, 1> tx_enable;
     Bitfield<6, 1> rx_enable;
     Bitfield<5, 1> mode;
@@ -50,11 +50,11 @@ private:
     Bitfield<1, 1> tx_irq_enable;
     Bitfield<0, 1> rx_irq_enable;
 
-    static const word_t WriteMask = 0xff;
+    static const Word WriteMask = 0xff;
   } control_;
 
   union UartStatus {
-    word_t raw;
+    Word raw;
     Bitfield<7, 1> rx_full;
     Bitfield<6, 1> tx_busy;
     Bitfield<5, 1> bit9;
@@ -64,7 +64,7 @@ private:
     Bitfield<1, 1> tx_ready;
     Bitfield<0, 1> rx_ready;
 
-    static const word_t ClearMask = 0x0003;
+    static const Word ClearMask = 0x0003;
   } status_;
 
   uint8_t baud_lo_;

@@ -6,6 +6,6 @@ class BusInterface {
 public:
   virtual ~BusInterface() = default;
 
-  virtual word_t ReadWord(addr_t addr) = 0;
-  virtual void WriteWord(addr_t addr, word_t value) = 0;
+  virtual Word ReadWord(Addr addr) = 0;
+  virtual void WriteWord(Addr addr, Word value) = 0;
 };

@@ -13,11 +13,11 @@ void Extmem::SetControl(uint16_t value) {
   ctrl_.raw = value & ExternalMemControl::WriteMask;
 }
 
-word_t Extmem::GetControl() {
+Word Extmem::GetControl() {
   return ctrl_.raw;
 }
 
-word_t Extmem::ReadWord(addr_t addr) {
+Word Extmem::ReadWord(Addr addr) {
   switch (ctrl_.address_decode) {
     case 0:
       return io_.ReadRomCsb(addr);
@@ -52,7 +52,7 @@ word_t Extmem::ReadWord(addr_t addr) {
   return 0;
 }
 
-void Extmem::WriteWord(addr_t addr, word_t value) {
+void Extmem::WriteWord(Addr addr, Word value) {
   switch (ctrl_.address_decode) {
     case 0:
       return io_.WriteRomCsb(addr, value);

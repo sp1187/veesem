@@ -38,22 +38,22 @@ public:
   void SetPpuViewSettings(PpuViewSettings& ppu_view_settings);
 
   // BusInterface
-  word_t ReadWord(addr_t addr) override;
-  void WriteWord(addr_t addr, word_t val) override;
+  Word ReadWord(Addr addr) override;
+  void WriteWord(Addr addr, Word val) override;
 
   // Read variant without side effects, used for memory editor
-  word_t PeekWord(addr_t addr);
+  Word PeekWord(Addr addr);
 
 private:
-  word_t GetSystemControl();
-  void SetSystemControl(word_t value);
+  Word GetSystemControl();
+  void SetSystemControl(Word value);
 
   const VideoTiming video_timing_;
   Spg200Io& io_;
 
   std::array<uint16_t, 0x2800> ram_ = {0};
   union SystemControl {
-    word_t raw = 0;
+    Word raw = 0;
     Bitfield<15, 1> watchdog_enable;
     Bitfield<14, 1> sleep_enable;
     Bitfield<9, 1> lvr_output_enable;
@@ -64,7 +64,7 @@ private:
     Bitfield<2, 1> video_dac_disable;
     Bitfield<1, 1> audio_dac_disable;
 
-    static const word_t WriteMask = 0xc3f6;
+    static const Word WriteMask = 0xc3f6;
   } system_ctrl_;
   Cpu cpu_;
   Ppu ppu_;

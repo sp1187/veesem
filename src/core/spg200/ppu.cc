@@ -4,8 +4,8 @@
 #include "irq.h"
 
 namespace {
-inline addr_t CalculateLineSegmentAddr(word_t segment_ptr, int ch, int tile_y, int tile_width,
-                                       int tile_height, int bits_per_pixel) {
+inline Addr CalculateLineSegmentAddr(Word segment_ptr, int ch, int tile_y, int tile_width,
+                                     int tile_height, int bits_per_pixel) {
   return (segment_ptr << 6) + (ch * tile_height + tile_y) * tile_width * bits_per_pixel / 16;
 }
 
@@ -93,127 +93,127 @@ void Ppu::SetViewSettings(PpuViewSettings& view_settings) {
   view_settings_ = view_settings;
 }
 
-word_t Ppu::GetBgXScroll(int bg_index) {
+Word Ppu::GetBgXScroll(int bg_index) {
   return bg_data_[bg_index].xscroll;
 }
 
-void Ppu::SetBgXScroll(int bg_index, word_t value) {
+void Ppu::SetBgXScroll(int bg_index, Word value) {
   bg_data_[bg_index].xscroll = value & 0x1ff;
 }
 
-word_t Ppu::GetBgYScroll(int bg_index) {
+Word Ppu::GetBgYScroll(int bg_index) {
   return bg_data_[bg_index].yscroll;
 }
 
-void Ppu::SetBgYScroll(int bg_index, word_t value) {
+void Ppu::SetBgYScroll(int bg_index, Word value) {
   bg_data_[bg_index].yscroll = value & 0xff;
 }
 
-word_t Ppu::GetBgAttribute(int bg_index) {
+Word Ppu::GetBgAttribute(int bg_index) {
   return bg_data_[bg_index].attr.raw;
 }
 
-void Ppu::SetBgAttribute(int bg_index, word_t value) {
+void Ppu::SetBgAttribute(int bg_index, Word value) {
   bg_data_[bg_index].attr.raw = value & BgAttribute::WriteMask;
 }
 
-word_t Ppu::GetBgControl(int bg_index) {
+Word Ppu::GetBgControl(int bg_index) {
   return bg_data_[bg_index].ctrl.raw;
 }
 
-void Ppu::SetBgControl(int bg_index, word_t value) {
+void Ppu::SetBgControl(int bg_index, Word value) {
   bg_data_[bg_index].ctrl.raw = value & BgControl::WriteMask;
 }
 
-word_t Ppu::GetBgTileMapPtr(int bg_index) {
+Word Ppu::GetBgTileMapPtr(int bg_index) {
   return bg_data_[bg_index].tile_map_ptr;
 }
 
-void Ppu::SetBgTileMapPtr(int bg_index, word_t value) {
+void Ppu::SetBgTileMapPtr(int bg_index, Word value) {
   bg_data_[bg_index].tile_map_ptr = value & 0x3fff;
 }
 
-word_t Ppu::GetBgAttributeMapPtr(int bg_index) {
+Word Ppu::GetBgAttributeMapPtr(int bg_index) {
   return bg_data_[bg_index].attribute_map_ptr;
 }
 
-void Ppu::SetBgAttributeMapPtr(int bg_index, word_t value) {
+void Ppu::SetBgAttributeMapPtr(int bg_index, Word value) {
   bg_data_[bg_index].attribute_map_ptr = value & 0x3fff;
 }
 
-word_t Ppu::GetVerticalCompressAmount() {
+Word Ppu::GetVerticalCompressAmount() {
   return vertical_compress_amount_;
 }
 
-void Ppu::SetVerticalCompressAmount(word_t value) {
+void Ppu::SetVerticalCompressAmount(Word value) {
   vertical_compress_amount_ = value & 0x1ff;
 }
 
-word_t Ppu::GetVerticalCompressOffset() {
+Word Ppu::GetVerticalCompressOffset() {
   return vertical_compress_offset_;
 }
 
-void Ppu::SetVerticalCompressOffset(word_t value) {
+void Ppu::SetVerticalCompressOffset(Word value) {
   vertical_compress_offset_ = value & 0x1fff;
 }
 
-word_t Ppu::GetBgSegmentPtr(int bg_index) {
+Word Ppu::GetBgSegmentPtr(int bg_index) {
   return bg_data_[bg_index].segment_ptr;
 }
 
-void Ppu::SetBgSegmentPtr(int bg_index, word_t value) {
+void Ppu::SetBgSegmentPtr(int bg_index, Word value) {
   bg_data_[bg_index].segment_ptr = value;
 }
 
-word_t Ppu::GetSpriteSegmentPtr() {
+Word Ppu::GetSpriteSegmentPtr() {
   return sprite_segment_ptr_;
 }
 
-void Ppu::SetSpriteSegmentPtr(word_t value) {
+void Ppu::SetSpriteSegmentPtr(Word value) {
   sprite_segment_ptr_ = value;
 }
 
-word_t Ppu::GetBlendLevel() {
+Word Ppu::GetBlendLevel() {
   return blend_level_;
 }
 
-void Ppu::SetBlendLevel(word_t value) {
+void Ppu::SetBlendLevel(Word value) {
   blend_level_ = value & 0x03;
 }
 
-word_t Ppu::GetFadeLevel() {
+Word Ppu::GetFadeLevel() {
   return fade_level_;
 }
 
-void Ppu::SetFadeLevel(word_t value) {
+void Ppu::SetFadeLevel(Word value) {
   fade_level_ = value & 0xff;
 }
 
-word_t Ppu::GetSpriteDmaSource() {
+Word Ppu::GetSpriteDmaSource() {
   return sprite_dma_source_;
 }
 
-void Ppu::SetSpriteDmaSource(word_t value) {
+void Ppu::SetSpriteDmaSource(Word value) {
   sprite_dma_source_ = value & 0x3fff;
 }
 
-word_t Ppu::GetSpriteDmaTarget() {
+Word Ppu::GetSpriteDmaTarget() {
   return sprite_dma_target_;
 }
 
-void Ppu::SetSpriteDmaTarget(word_t value) {
+void Ppu::SetSpriteDmaTarget(Word value) {
   sprite_dma_target_ = value & 0x3ff;
 }
 
-word_t Ppu::GetSpriteDmaLength() {
+Word Ppu::GetSpriteDmaLength() {
   return sprite_dma_length_;
 }
 
-void Ppu::StartSpriteDma(word_t length) {
+void Ppu::StartSpriteDma(Word length) {
   sprite_dma_length_ = length;
 
   while (sprite_dma_length_) {
-    const word_t word = bus_.ReadWord(sprite_dma_source_++);
+    const Word word = bus_.ReadWord(sprite_dma_source_++);
     WriteSpriteMemory(sprite_dma_target_++, word);
     sprite_dma_target_ &= 0x3ff;
     sprite_dma_length_--;
@@ -225,39 +225,39 @@ void Ppu::StartSpriteDma(word_t length) {
   }
 }
 
-word_t Ppu::GetStnLcdControl() {
+Word Ppu::GetStnLcdControl() {
   return stn_lcd_control_;
 }
 
-void Ppu::SetStnLcdControl(word_t value) {
+void Ppu::SetStnLcdControl(Word value) {
   stn_lcd_control_ = value & 0x3f;
 }
 
-word_t Ppu::GetLineScroll(uint8_t offset) {
+Word Ppu::GetLineScroll(uint8_t offset) {
   return line_scroll_[offset & 0xff];
 }
 
-void Ppu::SetLineScroll(uint8_t offset, word_t value) {
+void Ppu::SetLineScroll(uint8_t offset, Word value) {
   line_scroll_[offset & 0xff] = value & 0x1ff;
 }
 
-word_t Ppu::GetLineCompress(uint8_t offset) {
+Word Ppu::GetLineCompress(uint8_t offset) {
   return line_compress_[offset & 0xff];
 }
 
-void Ppu::SetLineCompress(uint8_t offset, word_t value) {
+void Ppu::SetLineCompress(uint8_t offset, Word value) {
   line_compress_[offset & 0xff] = value;
 }
 
-word_t Ppu::GetPaletteColor(uint8_t offset) {
+Word Ppu::GetPaletteColor(uint8_t offset) {
   return palette_memory_[offset & 0xff];
 }
 
-void Ppu::SetPaletteColor(uint8_t offset, word_t value) {
+void Ppu::SetPaletteColor(uint8_t offset, Word value) {
   palette_memory_[offset & 0xff] = value;
 }
 
-word_t Ppu::ReadSpriteMemory(word_t offset) {
+Word Ppu::ReadSpriteMemory(Word offset) {
   const int index = (offset & 0x3ff) >> 2;
   switch (offset & 3) {
     case 0:
@@ -272,7 +272,7 @@ word_t Ppu::ReadSpriteMemory(word_t offset) {
   return 0;
 }
 
-void Ppu::WriteSpriteMemory(word_t offset, word_t value) {
+void Ppu::WriteSpriteMemory(Word offset, Word value) {
   const int index = (offset & 0x3ff) >> 2;
   switch (offset & 3) {
     case 0:
@@ -290,49 +290,49 @@ void Ppu::WriteSpriteMemory(word_t offset, word_t value) {
   }
 }
 
-word_t Ppu::GetSpriteControl() {
+Word Ppu::GetSpriteControl() {
   return sprite_enable_;
 }
 
-void Ppu::SetSpriteControl(word_t value) {
+void Ppu::SetSpriteControl(Word value) {
   sprite_enable_ = value & 0x1;
 }
 
-word_t Ppu::GetIrqControl() {
+Word Ppu::GetIrqControl() {
   return irq_ctrl_.raw;
 }
 
-void Ppu::SetIrqControl(word_t value) {
+void Ppu::SetIrqControl(Word value) {
   irq_ctrl_.raw = value & Interrupts::WriteMask;
   UpdateIrq();
 }
 
-word_t Ppu::GetIrqStatus() {
+Word Ppu::GetIrqStatus() {
   return irq_status_.raw;
 }
 
-void Ppu::ClearIrqStatus(word_t value) {
+void Ppu::ClearIrqStatus(Word value) {
   irq_status_.raw &= ~(value & Interrupts::WriteMask);
   UpdateIrq();
 }
 
-word_t Ppu::GetIrqVpos() {
+Word Ppu::GetIrqVpos() {
   return irq_vpos_;
 }
 
-void Ppu::SetIrqVpos(word_t value) {
+void Ppu::SetIrqVpos(Word value) {
   irq_vpos_ = value & 0x1ff;
 }
 
-word_t Ppu::GetIrqHpos() {
+Word Ppu::GetIrqHpos() {
   return irq_hpos_;
 }
 
-void Ppu::SetIrqHpos(word_t value) {
+void Ppu::SetIrqHpos(Word value) {
   irq_hpos_ = value & 0x1ff;
 }
 
-word_t Ppu::GetLineCounter() {
+Word Ppu::GetLineCounter() {
   return cur_scanline_;
 }
 
@@ -341,7 +341,7 @@ int64_t Ppu::GetFrameCounter() {
 }
 
 void Ppu::UpdateIrq() {
-  const Interrupts active{static_cast<word_t>(irq_ctrl_.raw & irq_status_.raw)};
+  const Interrupts active{static_cast<Word>(irq_ctrl_.raw & irq_status_.raw)};
   bool value = active.dma || active.pos || active.vblank;
   irq_.SetPpuIrq(value);
 }
@@ -405,10 +405,10 @@ void Ppu::DrawBgScanline(int bg_index, int screen_y) {
   const int scroll_x = (bg.xscroll + (bg.ctrl.hmovement ? line_scroll_[tilemap_y] : 0)) & 0x1ff;
 
   if (bg.ctrl.bitmap_mode) {
-    const word_t addr_lo = bus_.ReadWord(bg.tile_map_ptr + tilemap_y);
-    const word_t addr_hi =
-        bus_.ReadWord(bg.attribute_map_ptr + tilemap_y / 2) >> word_t((tilemap_y & 1) ? 8 : 0);
-    const addr_t addr = addr_lo | (addr_hi << 16);
+    const Word addr_lo = bus_.ReadWord(bg.tile_map_ptr + tilemap_y);
+    const Word addr_hi =
+        bus_.ReadWord(bg.attribute_map_ptr + tilemap_y / 2) >> Word((tilemap_y & 1) ? 8 : 0);
+    const Addr addr = addr_lo | (addr_hi << 16);
     const int bits_per_pixel = bg.ctrl.hicolor_mode ? 16 : (bg.attr.color_mode + 1) * 2;
     for (int screen_x = -scroll_x; screen_x < 320; screen_x += 512) {
       DrawTileLine(screen_y, screen_x, addr, 512, bg.attr.palette, false, bits_per_pixel,
@@ -432,8 +432,8 @@ void Ppu::DrawBgScanline(int bg_index, int screen_y) {
     const int tilemap_tilepos =
         bg.ctrl.wallpaper_mode ? 0 : tiles_per_row * tilemap_ytile + tilemap_xtile;
 
-    addr_t num_addr = bg.tile_map_ptr + tilemap_tilepos;
-    word_t ch = bus_.ReadWord(num_addr);
+    Addr num_addr = bg.tile_map_ptr + tilemap_tilepos;
+    Word ch = bus_.ReadWord(num_addr);
 
     if (!ch)
       continue;
@@ -444,9 +444,9 @@ void Ppu::DrawBgScanline(int bg_index, int screen_y) {
     bool blend = bg.ctrl.blend;
 
     if (!bg.ctrl.register_mode) {
-      addr_t attr_addr = bg.attribute_map_ptr + (tilemap_tilepos >> 1);
-      word_t attr_word = bus_.ReadWord(attr_addr);
-      TileAttribute attr{static_cast<word_t>(attr_word >> word_t((tilemap_tilepos & 1) ? 8 : 0))};
+      Addr attr_addr = bg.attribute_map_ptr + (tilemap_tilepos >> 1);
+      Word attr_word = bus_.ReadWord(attr_addr);
+      TileAttribute attr{static_cast<Word>(attr_word >> Word((tilemap_tilepos & 1) ? 8 : 0))};
       palette = attr.palette;
       vflip = attr.vflip;
       hflip = attr.hflip;
@@ -457,8 +457,8 @@ void Ppu::DrawBgScanline(int bg_index, int screen_y) {
         !vflip ? tilemap_y % tile_height : tile_height - (tilemap_y % tile_height) - 1;
     const int bits_per_pixel = (bg.attr.color_mode + 1) * 2;
 
-    const addr_t addr = CalculateLineSegmentAddr(bg.segment_ptr, ch, tile_y, tile_width,
-                                                 tile_height, bits_per_pixel);
+    const Addr addr = CalculateLineSegmentAddr(bg.segment_ptr, ch, tile_y, tile_width, tile_height,
+                                               bits_per_pixel);
     DrawTileLine(screen_y, screen_x, addr, tile_width, palette, hflip, bits_per_pixel, blend);
   }
 }
@@ -477,17 +477,17 @@ void Ppu::DrawSpriteScanline(int sprite, int screen_y) {
   if (tile_y < 0 || tile_y >= tile_height)
     return;
 
-  addr_t addr = CalculateLineSegmentAddr(sprite_segment_ptr_, sprite_data.ch, tile_y, tile_width,
-                                         tile_height, bits_per_pixel);
+  Addr addr = CalculateLineSegmentAddr(sprite_segment_ptr_, sprite_data.ch, tile_y, tile_width,
+                                       tile_height, bits_per_pixel);
   DrawTileLine(screen_y, xpos, addr, tile_width, sprite_data.attr.palette, sprite_data.attr.hflip,
                bits_per_pixel, sprite_data.attr.blend);
 }
 
-void Ppu::DrawTileLine(int screen_y, int screen_x_start, addr_t line_addr, int tile_width,
+void Ppu::DrawTileLine(int screen_y, int screen_x_start, Addr line_addr, int tile_width,
                        unsigned palette, bool hflip, unsigned bits_per_pixel, bool blend) {
   int pixbuf_shift = -bits_per_pixel;
   uint32_t pixbuf = 0;
-  addr_t addr = line_addr + (hflip ? ((tile_width * bits_per_pixel) / 16 - 1) : 0);
+  Addr addr = line_addr + (hflip ? ((tile_width * bits_per_pixel) / 16 - 1) : 0);
 
   // skip bus reads containing entirely unused pixels
   const int left_offscreen = screen_x_start < 0 ? -screen_x_start : 0;
@@ -504,7 +504,7 @@ void Ppu::DrawTileLine(int screen_y, int screen_x_start, addr_t line_addr, int t
   for (int screen_x = screen_x_start + skipped_pixels;
        screen_x < screen_x_start + tile_width && screen_x < 320; screen_x++) {
     if (pixbuf_shift < 0) {
-      word_t val = bus_.ReadWord(addr);
+      Word val = bus_.ReadWord(addr);
       addr += hflip ? -1 : 1;
       if (bits_per_pixel != 16)
         val = (val >> 8) | (val << 8);

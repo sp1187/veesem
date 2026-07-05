@@ -20,97 +20,97 @@ public:
   std::span<uint16_t> GetAudio();
 
   /* 30xx values */
-  word_t GetWaveAddressLo(int channel_index);
-  void SetWaveAddressLo(int channel_index, word_t value);
-  word_t GetMode(int channel_index);
-  void SetMode(int channel_index, word_t value);
-  word_t GetLoopAddressLo(int channel_index);
-  void SetLoopAddressLo(int channel_index, word_t value);
-  word_t GetPan(int channel_index);
-  void SetPan(int channel_index, word_t value);
-  word_t GetEnvelope0(int channel_index);
-  void SetEnvelope0(int channel_index, word_t value);
-  word_t GetEnvelopeData(int channel_index);
-  void SetEnvelopeData(int channel_index, word_t value);
-  word_t GetEnvelope1(int channel_index);
-  void SetEnvelope1(int channel_index, word_t value);
-  word_t GetEnvelopeAddressHi(int channel_index);
-  void SetEnvelopeAddressHi(int channel_index, word_t value);
-  word_t GetEnvelopeAddressLo(int channel_index);
-  void SetEnvelopeAddressLo(int channel_index, word_t value);
-  word_t GetWaveData0(int channel_index);
-  void SetWaveData0(int channel_index, word_t value);
-  word_t GetEnvelopeLoopControl(int channel_index);
-  void SetEnvelopeLoopControl(int channel_index, word_t value);
-  word_t GetWaveData(int channel_index);
-  void SetWaveData(int channel_index, word_t value);
+  Word GetWaveAddressLo(int channel_index);
+  void SetWaveAddressLo(int channel_index, Word value);
+  Word GetMode(int channel_index);
+  void SetMode(int channel_index, Word value);
+  Word GetLoopAddressLo(int channel_index);
+  void SetLoopAddressLo(int channel_index, Word value);
+  Word GetPan(int channel_index);
+  void SetPan(int channel_index, Word value);
+  Word GetEnvelope0(int channel_index);
+  void SetEnvelope0(int channel_index, Word value);
+  Word GetEnvelopeData(int channel_index);
+  void SetEnvelopeData(int channel_index, Word value);
+  Word GetEnvelope1(int channel_index);
+  void SetEnvelope1(int channel_index, Word value);
+  Word GetEnvelopeAddressHi(int channel_index);
+  void SetEnvelopeAddressHi(int channel_index, Word value);
+  Word GetEnvelopeAddressLo(int channel_index);
+  void SetEnvelopeAddressLo(int channel_index, Word value);
+  Word GetWaveData0(int channel_index);
+  void SetWaveData0(int channel_index, Word value);
+  Word GetEnvelopeLoopControl(int channel_index);
+  void SetEnvelopeLoopControl(int channel_index, Word value);
+  Word GetWaveData(int channel_index);
+  void SetWaveData(int channel_index, Word value);
 
   /* 32xx values */
-  word_t GetPhaseHi(int channel_index);
-  void SetPhaseHi(int channel_index, word_t value);
-  word_t GetPhaseAccumulatorHi(int channel_index);
-  void SetPhaseAccumulatorHi(int channel_index, word_t value);
-  word_t GetTargetPhaseHi(int channel_index);
-  void SetTargetPhaseHi(int channel_index, word_t value);
-  word_t GetRampDownClock(int channel_index);
-  void SetRampDownClock(int channel_index, word_t value);
-  word_t GetPhaseLo(int channel_index);
-  void SetPhaseLo(int channel_index, word_t value);
-  word_t GetPhaseAccumulatorLo(int channel_index);
-  void SetPhaseAccumulatorLo(int channel_index, word_t value);
-  word_t GetTargetPhaseLo(int channel_index);
-  void SetTargetPhaseLo(int channel_index, word_t value);
-  word_t GetPitchBendControl(int channel_index);
-  void SetPitchBendControl(int channel_index, word_t value);
+  Word GetPhaseHi(int channel_index);
+  void SetPhaseHi(int channel_index, Word value);
+  Word GetPhaseAccumulatorHi(int channel_index);
+  void SetPhaseAccumulatorHi(int channel_index, Word value);
+  Word GetTargetPhaseHi(int channel_index);
+  void SetTargetPhaseHi(int channel_index, Word value);
+  Word GetRampDownClock(int channel_index);
+  void SetRampDownClock(int channel_index, Word value);
+  Word GetPhaseLo(int channel_index);
+  void SetPhaseLo(int channel_index, Word value);
+  Word GetPhaseAccumulatorLo(int channel_index);
+  void SetPhaseAccumulatorLo(int channel_index, Word value);
+  Word GetTargetPhaseLo(int channel_index);
+  void SetTargetPhaseLo(int channel_index, Word value);
+  Word GetPitchBendControl(int channel_index);
+  void SetPitchBendControl(int channel_index, Word value);
 
   /* 34xx values */
-  word_t GetChannelEnable();
-  void SetChannelEnable(word_t value);
-  word_t GetMainVolume();
-  void SetMainVolume(word_t value);
-  word_t GetChannelFiqEnable();
-  void SetChannelFiqEnable(word_t value);
-  word_t GetChannelFiqStatus();
-  void ClearChannelFiqStatus(word_t value);
-  word_t GetBeatBaseCount();
-  void SetBeatBaseCount(word_t value);
-  word_t GetBeatCount();
-  void SetBeatCount(word_t value);
-  word_t GetEnvClk0_3();
-  void SetEnvClk0_3(word_t value);
-  word_t GetEnvClk4_7();
-  void SetEnvClk4_7(word_t value);
-  word_t GetEnvClk8_11();
-  void SetEnvClk8_11(word_t value);
-  word_t GetEnvClk12_15();
-  void SetEnvClk12_15(word_t value);
-  word_t GetEnvRampdown();
-  void SetEnvRampdown(word_t value);
-  word_t GetChannelStop();
-  void ClearChannelStop(word_t value);
-  word_t GetChannelZeroCross();
-  void SetChannelZeroCross(word_t value);
-  word_t GetControl();
-  void SetControl(word_t value);
-  word_t GetCompressControl();
-  void SetCompressControl(word_t value);
-  word_t GetChannelStatus();
-  void SetWaveInLeft(word_t value);
-  void SetWaveInRight(word_t value);
-  word_t GetWaveOutLeft();
-  void SetWaveOutLeft(word_t value);
-  word_t GetWaveOutRight();
-  void SetWaveOutRight(word_t value);
-  word_t GetChannelRepeat();
-  void SetChannelRepeat(word_t value);
-  word_t GetChannelEnvMode();
-  void SetChannelEnvMode(word_t value);
-  word_t GetChannelToneRelease();
-  void SetChannelToneRelease(word_t value);
-  word_t GetChannelEnvIrq();
-  void ClearChannelEnvIrq(word_t value);
-  word_t GetChannelPitchBend();
-  void SetChannelPitchBend(word_t value);
+  Word GetChannelEnable();
+  void SetChannelEnable(Word value);
+  Word GetMainVolume();
+  void SetMainVolume(Word value);
+  Word GetChannelFiqEnable();
+  void SetChannelFiqEnable(Word value);
+  Word GetChannelFiqStatus();
+  void ClearChannelFiqStatus(Word value);
+  Word GetBeatBaseCount();
+  void SetBeatBaseCount(Word value);
+  Word GetBeatCount();
+  void SetBeatCount(Word value);
+  Word GetEnvClk0_3();
+  void SetEnvClk0_3(Word value);
+  Word GetEnvClk4_7();
+  void SetEnvClk4_7(Word value);
+  Word GetEnvClk8_11();
+  void SetEnvClk8_11(Word value);
+  Word GetEnvClk12_15();
+  void SetEnvClk12_15(Word value);
+  Word GetEnvRampdown();
+  void SetEnvRampdown(Word value);
+  Word GetChannelStop();
+  void ClearChannelStop(Word value);
+  Word GetChannelZeroCross();
+  void SetChannelZeroCross(Word value);
+  Word GetControl();
+  void SetControl(Word value);
+  Word GetCompressControl();
+  void SetCompressControl(Word value);
+  Word GetChannelStatus();
+  void SetWaveInLeft(Word value);
+  void SetWaveInRight(Word value);
+  Word GetWaveOutLeft();
+  void SetWaveOutLeft(Word value);
+  Word GetWaveOutRight();
+  void SetWaveOutRight(Word value);
+  Word GetChannelRepeat();
+  void SetChannelRepeat(Word value);
+  Word GetChannelEnvMode();
+  void SetChannelEnvMode(Word value);
+  Word GetChannelToneRelease();
+  void SetChannelToneRelease(Word value);
+  Word GetChannelEnvIrq();
+  void ClearChannelEnvIrq(Word value);
+  Word GetChannelPitchBend();
+  void SetChannelPitchBend(Word value);
 
 private:
   void GenerateSample();
@@ -134,54 +134,54 @@ private:
   DivisibleClock<13> rampdown_clock_;
 
   struct ChannelData {
-    addr_t wave_address = 0;
-    addr_t loop_address = 0;
+    Addr wave_address = 0;
+    Addr loop_address = 0;
     uint8_t wave_shift = 0;
-    addr_t envelope_address = 0;
+    Addr envelope_address = 0;
     union Mode {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<15, 1> adpcm;
       Bitfield<14, 1> tone_color;
       Bitfield<12, 2> tone_mode;
 
-      static const word_t WriteMask = 0xf000;
+      static const Word WriteMask = 0xf000;
     } mode;
     union Pan {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<8, 7> pan;
       Bitfield<0, 7> volume;
 
-      static const word_t WriteMask = 0x7f7f;
+      static const Word WriteMask = 0x7f7f;
     } pan;
     union Envelope0 {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<8, 7> target;
       Bitfield<7, 1> sign;
       Bitfield<0, 7> inc;
-      static const word_t WriteMask = 0x7fff;
+      static const Word WriteMask = 0x7fff;
     } envelope0;
     union Envelope1 {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<9, 7> repeat_count;
       Bitfield<8, 1> repeat;
       Bitfield<0, 8> load;
     } envelope1;
     union EnvelopeIrq {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<7, 9> irq_fire_address;
       Bitfield<6, 1> irq_enable;
 
-      static const word_t WriteMask = 0xffc0;
+      static const Word WriteMask = 0xffc0;
     } envelope_irq;
     union EnvelopeData {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<8, 8> count;
       Bitfield<0, 7> edd;
 
-      static const word_t WriteMask = 0xff7f;
+      static const Word WriteMask = 0xff7f;
     } envelope_data;
     union EnvelopeLoopControl {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<9, 7> rampdown_offset;
       Bitfield<0, 9> ea_offset;
     } envelope_loop_control;
@@ -193,7 +193,7 @@ private:
     uint8_t env_clk = 0;
     uint8_t rampdown_clk = 0;
     union PitchBendControl {
-      word_t raw = 0;
+      Word raw = 0;
       Bitfield<13, 3> time_step;
       Bitfield<12, 1> sign;
       Bitfield<0, 12> offset;
@@ -224,21 +224,21 @@ private:
   uint16_t beat_base_count_;
   uint16_t current_beat_base_count_;
   union BeatCount {
-    word_t raw = 0;
+    Word raw = 0;
     Bitfield<15, 1> irq_enable;
     Bitfield<14, 1> irq_status;
     Bitfield<0, 14> beat_count;
   } beat_count_;
 
   union Control {
-    word_t raw = 0;
+    Word raw = 0;
     Bitfield<9, 1> no_interpolation;
     Bitfield<8, 1> low_pass_enable;
     Bitfield<6, 2> high_volume;
     Bitfield<5, 1> overflow;
     Bitfield<3, 1> init;
 
-    static const word_t WriteMask = 0x388;
+    static const Word WriteMask = 0x388;
   } control_;
 
   BusInterface& bus_;

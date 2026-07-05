@@ -10,30 +10,30 @@ public:
   void Reset();
   void RunCycles(int cycles);
 
-  word_t GetTimebaseSetup();
-  void SetTimebaseSetup(word_t value);
+  Word GetTimebaseSetup();
+  void SetTimebaseSetup(Word value);
 
   void ClearTimebaseCounter();
 
-  word_t GetTimerAData();
-  void SetTimerAData(word_t value);
+  Word GetTimerAData();
+  void SetTimerAData(Word value);
 
-  word_t GetTimerAControl();
-  void SetTimerAControl(word_t value);
+  Word GetTimerAControl();
+  void SetTimerAControl(Word value);
 
-  word_t GetTimerAEnabled();
-  void SetTimerAEnabled(word_t value);
+  Word GetTimerAEnabled();
+  void SetTimerAEnabled(Word value);
 
   void ClearTimerAIrq();
 
-  word_t GetTimerBData();
-  void SetTimerBData(word_t value);
+  Word GetTimerBData();
+  void SetTimerBData(Word value);
 
-  word_t GetTimerBControl();
-  void SetTimerBControl(word_t value);
+  Word GetTimerBControl();
+  void SetTimerBControl(Word value);
 
-  word_t GetTimerBEnabled();
-  void SetTimerBEnabled(word_t value);
+  Word GetTimerBEnabled();
+  void SetTimerBEnabled(Word value);
 
   void ClearTimerBIrq();
 
@@ -44,12 +44,12 @@ private:
   int timer_b_divisor_ = -1;
 
   bool timer_a_enabled_ = false;
-  word_t timer_a_data_ = 0;
-  word_t timer_a_preload_ = 0;
+  Word timer_a_data_ = 0;
+  Word timer_a_preload_ = 0;
 
   bool timer_b_enabled_ = false;
-  word_t timer_b_data_ = 0;
-  word_t timer_b_preload_ = 0;
+  Word timer_b_data_ = 0;
+  Word timer_b_preload_ = 0;
 
   void TickTimerA();
   void TickTimerB();
@@ -57,22 +57,22 @@ private:
   void UpdateTimerBDivisors();
 
   union TimebaseSetup {
-    word_t raw = 0;
+    Word raw = 0;
     Bitfield<2, 2> tmb2;
     Bitfield<0, 2> tmb1;
 
-    static constexpr word_t WriteMask = 0x000f;
+    static constexpr Word WriteMask = 0x000f;
   } timebase_setup_;
 
   union TimerAControl {
-    word_t raw = 0;
+    Word raw = 0;
     Bitfield<6, 4> pulse_ctrl;
     Bitfield<3, 3> source_b;
     Bitfield<0, 3> source_a;
   } timer_a_control_;
 
   union TimerBControl {
-    word_t raw = 0;
+    Word raw = 0;
     Bitfield<6, 4> pulse_ctrl;
     Bitfield<0, 3> source_c;
   } timer_b_control_;

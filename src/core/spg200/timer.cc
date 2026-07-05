@@ -62,30 +62,30 @@ void Timer::RunCycles(int cycles) {
   }
 }
 
-word_t Timer::GetTimerAData() {
+Word Timer::GetTimerAData() {
   return timer_a_data_;
 }
 
-void Timer::SetTimerAData(word_t value) {
+void Timer::SetTimerAData(Word value) {
   timer_a_preload_ = value;
   timer_a_data_ = value;
 }
 
-word_t Timer::GetTimerAControl() {
+Word Timer::GetTimerAControl() {
   return timer_a_control_.raw;
 }
 
-void Timer::SetTimerAControl(word_t value) {
+void Timer::SetTimerAControl(Word value) {
   timer_a_control_.raw = value;
 
   UpdateTimerADivisors();
 }
 
-word_t Timer::GetTimerAEnabled() {
+Word Timer::GetTimerAEnabled() {
   return timer_a_enabled_;
 }
 
-void Timer::SetTimerAEnabled(word_t value) {
+void Timer::SetTimerAEnabled(Word value) {
   timer_a_enabled_ = value & 1;
 }
 
@@ -93,30 +93,30 @@ void Timer::ClearTimerAIrq() {
   irq_.SetTimerAIrq(false);
 }
 
-word_t Timer::GetTimerBData() {
+Word Timer::GetTimerBData() {
   return timer_b_data_;
 }
 
-void Timer::SetTimerBData(word_t value) {
+void Timer::SetTimerBData(Word value) {
   timer_b_preload_ = value;
   timer_b_data_ = value;
 }
 
-word_t Timer::GetTimerBControl() {
+Word Timer::GetTimerBControl() {
   return timer_b_control_.raw;
 }
 
-void Timer::SetTimerBControl(word_t value) {
+void Timer::SetTimerBControl(Word value) {
   timer_b_control_.raw = value;
 
   UpdateTimerBDivisors();
 }
 
-word_t Timer::GetTimerBEnabled() {
+Word Timer::GetTimerBEnabled() {
   return timer_b_enabled_;
 }
 
-void Timer::SetTimerBEnabled(word_t value) {
+void Timer::SetTimerBEnabled(Word value) {
   timer_b_enabled_ = value & 1;
 }
 
@@ -124,11 +124,11 @@ void Timer::ClearTimerBIrq() {
   irq_.SetTimerBIrq(false);
 }
 
-word_t Timer::GetTimebaseSetup() {
+Word Timer::GetTimebaseSetup() {
   return timebase_setup_.raw;
 }
 
-void Timer::SetTimebaseSetup(word_t value) {
+void Timer::SetTimebaseSetup(Word value) {
   timebase_setup_.raw = value & timebase_setup_.WriteMask;
 
   UpdateTimerADivisors();

@@ -17,57 +17,57 @@ public:
   void Reset();
   void SetViewSettings(PpuViewSettings& view_settings);
 
-  word_t GetBgXScroll(int bg_index);
-  void SetBgXScroll(int bg_index, word_t value);
-  word_t GetBgYScroll(int bg_index);
-  void SetBgYScroll(int bg_index, word_t value);
-  word_t GetBgAttribute(int bg_index);
-  void SetBgAttribute(int bg_index, word_t value);
-  word_t GetBgControl(int bg_index);
-  void SetBgControl(int bg_index, word_t value);
-  word_t GetBgTileMapPtr(int bg_index);
-  void SetBgTileMapPtr(int bg_index, word_t value);
-  word_t GetBgAttributeMapPtr(int bg_index);
-  void SetBgAttributeMapPtr(int bg_index, word_t value);
-  word_t GetVerticalCompressAmount();
-  void SetVerticalCompressAmount(word_t value);
-  word_t GetVerticalCompressOffset();
-  void SetVerticalCompressOffset(word_t value);
-  word_t GetBgSegmentPtr(int bg_index);
-  void SetBgSegmentPtr(int bg_index, word_t value);
-  word_t GetSpriteSegmentPtr();
-  void SetSpriteSegmentPtr(word_t value);
-  word_t GetBlendLevel();
-  void SetBlendLevel(word_t value);
-  word_t GetFadeLevel();
-  void SetFadeLevel(word_t value);
-  word_t GetLineScroll(uint8_t offset);
-  void SetLineScroll(uint8_t offset, word_t value);
-  word_t GetLineCompress(uint8_t offset);
-  void SetLineCompress(uint8_t offset, word_t value);
-  word_t GetPaletteColor(uint8_t offset);
-  void SetPaletteColor(uint8_t offset, word_t value);
-  word_t ReadSpriteMemory(word_t offset);
-  void WriteSpriteMemory(word_t offset, word_t value);
-  word_t GetSpriteControl();
-  void SetSpriteControl(word_t value);
-  word_t GetSpriteDmaSource();
-  void SetSpriteDmaSource(word_t value);
-  word_t GetSpriteDmaTarget();
-  void SetSpriteDmaTarget(word_t value);
-  word_t GetSpriteDmaLength();
-  void StartSpriteDma(word_t length);
-  word_t GetStnLcdControl();
-  void SetStnLcdControl(word_t value);
-  word_t GetIrqControl();
-  void SetIrqControl(word_t value);
-  word_t GetIrqStatus();
-  void ClearIrqStatus(word_t value);
-  word_t GetIrqVpos();
-  void SetIrqVpos(word_t value);
-  word_t GetIrqHpos();
-  void SetIrqHpos(word_t value);
-  word_t GetLineCounter();
+  Word GetBgXScroll(int bg_index);
+  void SetBgXScroll(int bg_index, Word value);
+  Word GetBgYScroll(int bg_index);
+  void SetBgYScroll(int bg_index, Word value);
+  Word GetBgAttribute(int bg_index);
+  void SetBgAttribute(int bg_index, Word value);
+  Word GetBgControl(int bg_index);
+  void SetBgControl(int bg_index, Word value);
+  Word GetBgTileMapPtr(int bg_index);
+  void SetBgTileMapPtr(int bg_index, Word value);
+  Word GetBgAttributeMapPtr(int bg_index);
+  void SetBgAttributeMapPtr(int bg_index, Word value);
+  Word GetVerticalCompressAmount();
+  void SetVerticalCompressAmount(Word value);
+  Word GetVerticalCompressOffset();
+  void SetVerticalCompressOffset(Word value);
+  Word GetBgSegmentPtr(int bg_index);
+  void SetBgSegmentPtr(int bg_index, Word value);
+  Word GetSpriteSegmentPtr();
+  void SetSpriteSegmentPtr(Word value);
+  Word GetBlendLevel();
+  void SetBlendLevel(Word value);
+  Word GetFadeLevel();
+  void SetFadeLevel(Word value);
+  Word GetLineScroll(uint8_t offset);
+  void SetLineScroll(uint8_t offset, Word value);
+  Word GetLineCompress(uint8_t offset);
+  void SetLineCompress(uint8_t offset, Word value);
+  Word GetPaletteColor(uint8_t offset);
+  void SetPaletteColor(uint8_t offset, Word value);
+  Word ReadSpriteMemory(Word offset);
+  void WriteSpriteMemory(Word offset, Word value);
+  Word GetSpriteControl();
+  void SetSpriteControl(Word value);
+  Word GetSpriteDmaSource();
+  void SetSpriteDmaSource(Word value);
+  Word GetSpriteDmaTarget();
+  void SetSpriteDmaTarget(Word value);
+  Word GetSpriteDmaLength();
+  void StartSpriteDma(Word length);
+  Word GetStnLcdControl();
+  void SetStnLcdControl(Word value);
+  Word GetIrqControl();
+  void SetIrqControl(Word value);
+  Word GetIrqStatus();
+  void ClearIrqStatus(Word value);
+  Word GetIrqVpos();
+  void SetIrqVpos(Word value);
+  Word GetIrqHpos();
+  void SetIrqHpos(Word value);
+  Word GetLineCounter();
   int64_t GetFrameCounter();
   std::span<uint8_t> GetFramebuffer() const;
 
@@ -76,7 +76,7 @@ private:
   void DrawLine(int y);
   void DrawBgScanline(int bg_index, int y);
   void DrawSpriteScanline(int sprite_index, int y);
-  void DrawTileLine(int screen_y, int screen_x_start, addr_t addr, int tile_width, unsigned palette,
+  void DrawTileLine(int screen_y, int screen_x_start, Addr addr, int tile_width, unsigned palette,
                     bool hflip, unsigned bits_per_pixel, bool blend);
   union Color {
     uint16_t raw = 0;
@@ -99,16 +99,16 @@ private:
   int64_t frame_count_ = 0;
 
   union Interrupts {
-    word_t raw;
+    Word raw;
     Bitfield<2, 1> dma;
     Bitfield<1, 1> pos;
     Bitfield<0, 1> vblank;
 
-    static const word_t WriteMask = 0x0007;
+    static const Word WriteMask = 0x0007;
   } irq_ctrl_, irq_status_;
 
   union BgAttribute {
-    word_t raw;
+    Word raw;
     Bitfield<12, 2> depth;
     Bitfield<8, 4> palette;
     Bitfield<6, 2> vsize;
@@ -117,12 +117,12 @@ private:
     Bitfield<2, 1> hflip;
     Bitfield<0, 2> color_mode;
 
-    static const word_t WriteMask = 0x3fff;
+    static const Word WriteMask = 0x3fff;
   };
 
   // TODO: separate 8-bit bitfield type?
   union TileAttribute {
-    word_t raw;
+    Word raw;
     Bitfield<6, 1> blend;
     Bitfield<5, 1> vflip;
     Bitfield<4, 1> hflip;
@@ -130,7 +130,7 @@ private:
   };
 
   union BgControl {
-    word_t raw;
+    Word raw;
     Bitfield<8, 1> blend;
     Bitfield<7, 1> hicolor_mode;
     Bitfield<6, 1> vcompress;
@@ -141,11 +141,11 @@ private:
     Bitfield<1, 1> register_mode;
     Bitfield<0, 1> bitmap_mode;
 
-    static const word_t WriteMask = 0x01ff;
+    static const Word WriteMask = 0x01ff;
   };
 
   union SpriteAttribute {
-    word_t raw;
+    Word raw;
     Bitfield<14, 1> blend;
     Bitfield<12, 2> depth;
     Bitfield<8, 4> palette;
@@ -155,17 +155,17 @@ private:
     Bitfield<2, 1> hflip;
     Bitfield<0, 2> color_mode;
 
-    static const word_t WriteMask = 0x7fff;
+    static const Word WriteMask = 0x7fff;
   };
 
   struct BgData {
-    word_t xscroll = 0;
-    word_t yscroll = 0;
+    Word xscroll = 0;
+    Word yscroll = 0;
     BgAttribute attr{0};
     BgControl ctrl{0};
-    word_t tile_map_ptr = 0;
-    word_t attribute_map_ptr = 0;
-    word_t segment_ptr = 0;
+    Word tile_map_ptr = 0;
+    Word attribute_map_ptr = 0;
+    Word segment_ptr = 0;
   };
 
   struct SpriteData {

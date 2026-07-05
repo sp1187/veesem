@@ -145,7 +145,7 @@ void Spu::TickChannel(int channel_index) {
     if (channel.mode.tone_mode == 0)
       return;  // TODO
 
-    word_t word = bus_.ReadWord(channel.wave_address);
+    Word word = bus_.ReadWord(channel.wave_address);
 
     if (channel.mode.adpcm) {
       if (word == 0xffff) {
@@ -223,7 +223,7 @@ void Spu::TickChannelEnvelope(int channel_index) {
       }
 
       if (channel.envelope_data.edd == channel.envelope0.target) {
-        addr_t addr = channel.envelope_address + channel.envelope_loop_control.ea_offset;
+        Addr addr = channel.envelope_address + channel.envelope_loop_control.ea_offset;
         if (channel.envelope1.repeat) {
           if (channel.envelope1.repeat_count) {
             channel.envelope1.repeat_count--;
@@ -328,23 +328,23 @@ std::span<uint16_t> Spu::GetAudio() {
   return {audio_buffer_.data(), size};
 }
 
-word_t Spu::GetWaveAddressLo(int channel_index) {
+Word Spu::GetWaveAddressLo(int channel_index) {
   return channel_data_[channel_index].wave_address & 0xffff;
 }
 
-void Spu::SetWaveAddressLo(int channel_index, word_t value) {
+void Spu::SetWaveAddressLo(int channel_index, Word value) {
   auto& wave_address = channel_data_[channel_index].wave_address;
   wave_address = (wave_address & ~0xffff) | value;
   channel_data_[channel_index].wave_shift = 0;
 }
 
-word_t Spu::GetMode(int channel_index) {
+Word Spu::GetMode(int channel_index) {
   const uint16_t wave_address_hi = channel_data_[channel_index].wave_address >> 16;
   const uint16_t loop_address_hi = channel_data_[channel_index].loop_address >> 16;
   return channel_data_[channel_index].mode.raw | (loop_address_hi << 6) | wave_address_hi;
 }
 
-void Spu::SetMode(int channel_index, word_t value) {
+void Spu::SetMode(int channel_index, Word value) {
   channel_data_[channel_index].mode.raw = value & ChannelData::Mode::WriteMask;
   auto& wave_address = channel_data_[channel_index].wave_address;
   auto& loop_address = channel_data_[channel_index].loop_address;
@@ -352,166 +352,166 @@ void Spu::SetMode(int channel_index, word_t value) {
   loop_address = (((value >> 6) & 0x3f) << 16) | (loop_address & 0xffff);
 }
 
-word_t Spu::GetLoopAddressLo(int channel_index) {
+Word Spu::GetLoopAddressLo(int channel_index) {
   return channel_data_[channel_index].loop_address & 0xffff;
 }
 
-void Spu::SetLoopAddressLo(int channel_index, word_t value) {
+void Spu::SetLoopAddressLo(int channel_index, Word value) {
   auto& loop_address = channel_data_[channel_index].loop_address;
   loop_address = (loop_address & ~0xffff) | value;
 }
 
-word_t Spu::GetPan(int channel_index) {
+Word Spu::GetPan(int channel_index) {
   return channel_data_[channel_index].pan.raw;
 }
 
-void Spu::SetPan(int channel_index, word_t value) {
+void Spu::SetPan(int channel_index, Word value) {
   channel_data_[channel_index].pan.raw = value & ChannelData::Pan::WriteMask;
 }
 
-word_t Spu::GetEnvelope0(int channel_index) {
+Word Spu::GetEnvelope0(int channel_index) {
   return channel_data_[channel_index].envelope0.raw;
 }
 
-void Spu::SetEnvelope0(int channel_index, word_t value) {
+void Spu::SetEnvelope0(int channel_index, Word value) {
   channel_data_[channel_index].envelope0.raw = value & ChannelData::Envelope0::WriteMask;
 }
 
-word_t Spu::GetEnvelopeData(int channel_index) {
+Word Spu::GetEnvelopeData(int channel_index) {
   return channel_data_[channel_index].envelope_data.raw;
 }
 
-void Spu::SetEnvelopeData(int channel_index, word_t value) {
+void Spu::SetEnvelopeData(int channel_index, Word value) {
   channel_data_[channel_index].envelope_data.raw = value & ChannelData::EnvelopeData::WriteMask;
 }
 
-word_t Spu::GetEnvelope1(int channel_index) {
+Word Spu::GetEnvelope1(int channel_index) {
   return channel_data_[channel_index].envelope1.raw;
 }
 
-void Spu::SetEnvelope1(int channel_index, word_t value) {
+void Spu::SetEnvelope1(int channel_index, Word value) {
   channel_data_[channel_index].envelope1.raw = value;
 }
 
-word_t Spu::GetEnvelopeAddressHi(int channel_index) {
+Word Spu::GetEnvelopeAddressHi(int channel_index) {
   const uint16_t envelope_address_hi = channel_data_[channel_index].envelope_address >> 16;
   return channel_data_[channel_index].envelope_irq.raw | envelope_address_hi;
 }
 
-void Spu::SetEnvelopeAddressHi(int channel_index, word_t value) {
+void Spu::SetEnvelopeAddressHi(int channel_index, Word value) {
   channel_data_[channel_index].envelope_irq.raw = value & ChannelData::EnvelopeIrq::WriteMask;
   auto& envelope_address = channel_data_[channel_index].envelope_address;
   envelope_address = ((value & 0x3f) << 16) | (envelope_address & 0xffff);
 }
 
-word_t Spu::GetEnvelopeAddressLo(int channel_index) {
+Word Spu::GetEnvelopeAddressLo(int channel_index) {
   return channel_data_[channel_index].envelope_address & 0xffff;
 }
 
-void Spu::SetEnvelopeAddressLo(int channel_index, word_t value) {
+void Spu::SetEnvelopeAddressLo(int channel_index, Word value) {
   auto& envelope_address = channel_data_[channel_index].envelope_address;
   envelope_address = (envelope_address & ~0xffff) | value;
 }
 
-word_t Spu::GetWaveData0(int channel_index) {
+Word Spu::GetWaveData0(int channel_index) {
   return channel_data_[channel_index].wave_data_0;
 }
 
-void Spu::SetWaveData0(int channel_index, word_t value) {
+void Spu::SetWaveData0(int channel_index, Word value) {
   channel_data_[channel_index].wave_data_0 = value;
 }
 
-word_t Spu::GetEnvelopeLoopControl(int channel_index) {
+Word Spu::GetEnvelopeLoopControl(int channel_index) {
   return channel_data_[channel_index].envelope_loop_control.raw;
 }
 
-void Spu::SetEnvelopeLoopControl(int channel_index, word_t value) {
+void Spu::SetEnvelopeLoopControl(int channel_index, Word value) {
   channel_data_[channel_index].envelope_loop_control.raw = value;
 }
 
-word_t Spu::GetWaveData(int channel_index) {
+Word Spu::GetWaveData(int channel_index) {
   return channel_data_[channel_index].wave_data;
 }
 
-void Spu::SetWaveData(int channel_index, word_t value) {
+void Spu::SetWaveData(int channel_index, Word value) {
   channel_data_[channel_index].wave_data = value;
 }
 
-word_t Spu::GetPhaseHi(int channel_index) {
+Word Spu::GetPhaseHi(int channel_index) {
   return channel_data_[channel_index].phase >> 16;
 }
 
-void Spu::SetPhaseHi(int channel_index, word_t value) {
+void Spu::SetPhaseHi(int channel_index, Word value) {
   auto& phase = channel_data_[channel_index].phase;
   phase = ((value & 0x07) << 16) | (phase & 0xffff);
 }
 
-word_t Spu::GetPhaseAccumulatorHi(int channel_index) {
+Word Spu::GetPhaseAccumulatorHi(int channel_index) {
   return channel_data_[channel_index].phase_acc >> 16;
 }
 
-void Spu::SetPhaseAccumulatorHi(int channel_index, word_t value) {
+void Spu::SetPhaseAccumulatorHi(int channel_index, Word value) {
   auto& phase_acc = channel_data_[channel_index].phase_acc;
   phase_acc = ((value & 0x07) << 16) | (phase_acc & 0xffff);
 }
 
-word_t Spu::GetTargetPhaseHi(int channel_index) {
+Word Spu::GetTargetPhaseHi(int channel_index) {
   return channel_data_[channel_index].target_phase >> 16;
 }
 
-void Spu::SetTargetPhaseHi(int channel_index, word_t value) {
+void Spu::SetTargetPhaseHi(int channel_index, Word value) {
   auto& target_phase = channel_data_[channel_index].target_phase;
   target_phase = ((value & 0x07) << 16) | (target_phase & 0xffff);
 }
 
-word_t Spu::GetRampDownClock(int channel_index) {
+Word Spu::GetRampDownClock(int channel_index) {
   return channel_data_[channel_index].rampdown_clk;
 }
 
-void Spu::SetRampDownClock(int channel_index, word_t value) {
+void Spu::SetRampDownClock(int channel_index, Word value) {
   channel_data_[channel_index].rampdown_clk = value & 0x07;
 }
 
-word_t Spu::GetPhaseLo(int channel_index) {
+Word Spu::GetPhaseLo(int channel_index) {
   return channel_data_[channel_index].phase & 0xffff;
 }
 
-void Spu::SetPhaseLo(int channel_index, word_t value) {
+void Spu::SetPhaseLo(int channel_index, Word value) {
   auto& phase = channel_data_[channel_index].phase;
   phase = (phase & ~0xffff) | value;
 }
 
-word_t Spu::GetPhaseAccumulatorLo(int channel_index) {
+Word Spu::GetPhaseAccumulatorLo(int channel_index) {
   return channel_data_[channel_index].phase_acc & 0xffff;
 }
 
-void Spu::SetPhaseAccumulatorLo(int channel_index, word_t value) {
+void Spu::SetPhaseAccumulatorLo(int channel_index, Word value) {
   auto& phase_acc = channel_data_[channel_index].phase_acc;
   phase_acc = (phase_acc & ~0xffff) | value;
 }
 
-word_t Spu::GetTargetPhaseLo(int channel_index) {
+Word Spu::GetTargetPhaseLo(int channel_index) {
   return channel_data_[channel_index].target_phase & 0xffff;
 }
 
-void Spu::SetTargetPhaseLo(int channel_index, word_t value) {
+void Spu::SetTargetPhaseLo(int channel_index, Word value) {
   auto& target_phase = channel_data_[channel_index].target_phase;
   target_phase = (target_phase & ~0xffff) | value;
 }
 
-word_t Spu::GetPitchBendControl(int channel_index) {
+Word Spu::GetPitchBendControl(int channel_index) {
   return channel_data_[channel_index].pitch_bend_control.raw;
 }
 
-void Spu::SetPitchBendControl(int channel_index, word_t value) {
+void Spu::SetPitchBendControl(int channel_index, Word value) {
   channel_data_[channel_index].pitch_bend_control.raw = value;
 }
 
-word_t Spu::GetChannelEnable() {
+Word Spu::GetChannelEnable() {
   return channel_enable_.to_ulong();
 }
 
-void Spu::SetChannelEnable(word_t value) {
+void Spu::SetChannelEnable(Word value) {
   auto old_channel_enable = channel_enable_;
   channel_enable_ = value;
   for (int channel_index = 0; channel_index < 16; channel_index++) {
@@ -529,113 +529,113 @@ void Spu::SetChannelEnable(word_t value) {
   }
 }
 
-word_t Spu::GetMainVolume() {
+Word Spu::GetMainVolume() {
   return main_volume_;
 }
 
-void Spu::SetMainVolume(word_t value) {
+void Spu::SetMainVolume(Word value) {
   main_volume_ = value & 0x7f;
 }
 
-word_t Spu::GetChannelFiqEnable() {
+Word Spu::GetChannelFiqEnable() {
   return channel_fiq_enable_.to_ulong();
 }
 
-void Spu::SetChannelFiqEnable(word_t value) {
+void Spu::SetChannelFiqEnable(Word value) {
   channel_fiq_enable_ = value;
 }
 
-word_t Spu::GetChannelFiqStatus() {
+Word Spu::GetChannelFiqStatus() {
   return channel_fiq_status_.to_ulong();
 }
 
-void Spu::ClearChannelFiqStatus(word_t value) {
+void Spu::ClearChannelFiqStatus(Word value) {
   channel_fiq_status_ &= ~value;
   UpdateChannelIrq();
 }
 
-word_t Spu::GetBeatBaseCount() {
+Word Spu::GetBeatBaseCount() {
   return beat_base_count_;
 }
 
-void Spu::SetBeatBaseCount(word_t value) {
+void Spu::SetBeatBaseCount(Word value) {
   beat_base_count_ = value & 0xfff;
   current_beat_base_count_ = beat_base_count_;
 }
 
-word_t Spu::GetBeatCount() {
+Word Spu::GetBeatCount() {
   return beat_count_.raw;
 }
 
-void Spu::SetBeatCount(word_t value) {
+void Spu::SetBeatCount(Word value) {
   bool old_irq_status = beat_count_.irq_status;
   beat_count_.raw = value;
   beat_count_.irq_status = old_irq_status && !beat_count_.irq_status;
   UpdateBeatIrq();
 }
 
-word_t Spu::GetEnvClk0_3() {
+Word Spu::GetEnvClk0_3() {
   return channel_data_[0].env_clk | (channel_data_[1].env_clk << 4) |
          (channel_data_[2].env_clk << 8) | (channel_data_[3].env_clk << 12);
 }
 
-void Spu::SetEnvClk0_3(word_t value) {
+void Spu::SetEnvClk0_3(Word value) {
   channel_data_[0].env_clk = value & 0x0f;
   channel_data_[1].env_clk = (value >> 4) & 0x0f;
   channel_data_[2].env_clk = (value >> 8) & 0x0f;
   channel_data_[3].env_clk = (value >> 12) & 0x0f;
 }
 
-word_t Spu::GetEnvClk4_7() {
+Word Spu::GetEnvClk4_7() {
   return channel_data_[4].env_clk | (channel_data_[5].env_clk << 4) |
          (channel_data_[6].env_clk << 8) | (channel_data_[7].env_clk << 12);
 }
 
-void Spu::SetEnvClk4_7(word_t value) {
+void Spu::SetEnvClk4_7(Word value) {
   channel_data_[4].env_clk = value & 0x0f;
   channel_data_[5].env_clk = (value >> 4) & 0x0f;
   channel_data_[6].env_clk = (value >> 8) & 0x0f;
   channel_data_[7].env_clk = (value >> 12) & 0x0f;
 }
 
-word_t Spu::GetEnvClk8_11() {
+Word Spu::GetEnvClk8_11() {
   return channel_data_[8].env_clk | (channel_data_[9].env_clk << 4) |
          (channel_data_[10].env_clk << 8) | (channel_data_[11].env_clk << 12);
 }
 
-void Spu::SetEnvClk8_11(word_t value) {
+void Spu::SetEnvClk8_11(Word value) {
   channel_data_[8].env_clk = value & 0x0f;
   channel_data_[9].env_clk = (value >> 4) & 0x0f;
   channel_data_[10].env_clk = (value >> 8) & 0x0f;
   channel_data_[11].env_clk = (value >> 12) & 0x0f;
 }
 
-word_t Spu::GetEnvClk12_15() {
+Word Spu::GetEnvClk12_15() {
   return channel_data_[12].env_clk | (channel_data_[13].env_clk << 4) |
          (channel_data_[14].env_clk << 8) | (channel_data_[15].env_clk << 12);
 }
 
-void Spu::SetEnvClk12_15(word_t value) {
+void Spu::SetEnvClk12_15(Word value) {
   channel_data_[12].env_clk = value & 0x0f;
   channel_data_[13].env_clk = (value >> 4) & 0x0f;
   channel_data_[14].env_clk = (value >> 8) & 0x0f;
   channel_data_[15].env_clk = (value >> 12) & 0x0f;
 }
 
-word_t Spu::GetEnvRampdown() {
+Word Spu::GetEnvRampdown() {
   return channel_env_rampdown_.to_ulong();
 }
 
-void Spu::SetEnvRampdown(word_t value) {
+void Spu::SetEnvRampdown(Word value) {
   uint16_t status = channel_enable_.to_ulong() & ~channel_stop_.to_ulong();
   channel_env_rampdown_ = value & status;
 }
 
-word_t Spu::GetChannelStop() {
+Word Spu::GetChannelStop() {
   return channel_stop_.to_ulong();
 }
 
-void Spu::ClearChannelStop(word_t value) {
+void Spu::ClearChannelStop(Word value) {
   auto old_channel_stop = channel_stop_;
   channel_stop_ &= ~value;
 
@@ -649,80 +649,80 @@ void Spu::ClearChannelStop(word_t value) {
   }
 }
 
-word_t Spu::GetChannelZeroCross() {
+Word Spu::GetChannelZeroCross() {
   return channel_zero_cross_.to_ulong();
 }
 
-void Spu::SetChannelZeroCross(word_t value) {
+void Spu::SetChannelZeroCross(Word value) {
   channel_zero_cross_ = value;
 }
 
-word_t Spu::GetControl() {
+Word Spu::GetControl() {
   return control_.raw;
 }
 
-void Spu::SetControl(word_t value) {
+void Spu::SetControl(Word value) {
   bool old_overflow = control_.overflow;
   control_.raw = value & Control::WriteMask;
   control_.overflow = old_overflow;
 }
 
-word_t Spu::GetChannelStatus() {
+Word Spu::GetChannelStatus() {
   return channel_enable_.to_ulong() & ~channel_stop_.to_ulong();
 }
 
-void Spu::SetWaveInLeft(word_t value) {
+void Spu::SetWaveInLeft(Word value) {
   wave_in_l_ = value;
 }
 
-void Spu::SetWaveInRight(word_t value) {
+void Spu::SetWaveInRight(Word value) {
   wave_in_r_ = value;
 }
 
-word_t Spu::GetWaveOutLeft() {
+Word Spu::GetWaveOutLeft() {
   return wave_out_l_;
 }
 
-word_t Spu::GetWaveOutRight() {
+Word Spu::GetWaveOutRight() {
   return wave_out_r_;
 }
 
-word_t Spu::GetChannelRepeat() {
+Word Spu::GetChannelRepeat() {
   return channel_repeat_.to_ulong();
 }
 
-void Spu::SetChannelRepeat(word_t value) {
+void Spu::SetChannelRepeat(Word value) {
   channel_repeat_ = value;
 }
 
-word_t Spu::GetChannelEnvMode() {
+Word Spu::GetChannelEnvMode() {
   return channel_env_mode_.to_ulong();
 }
 
-void Spu::SetChannelEnvMode(word_t value) {
+void Spu::SetChannelEnvMode(Word value) {
   channel_env_mode_ = value;
 }
 
-word_t Spu::GetChannelToneRelease() {
+Word Spu::GetChannelToneRelease() {
   return channel_tone_release_.to_ulong();
 }
 
-void Spu::SetChannelToneRelease(word_t value) {
+void Spu::SetChannelToneRelease(Word value) {
   channel_tone_release_ = value;
 }
 
-word_t Spu::GetChannelEnvIrq() {
+Word Spu::GetChannelEnvIrq() {
   return channel_env_irq_.to_ulong();
 }
 
-void Spu::ClearChannelEnvIrq(word_t value) {
+void Spu::ClearChannelEnvIrq(Word value) {
   channel_env_irq_ &= ~value;
 }
 
-word_t Spu::GetChannelPitchBend() {
+Word Spu::GetChannelPitchBend() {
   return channel_pitch_bend_.to_ulong();
 }
 
-void Spu::SetChannelPitchBend(word_t value) {
+void Spu::SetChannelPitchBend(Word value) {
   channel_pitch_bend_ = value;
 }

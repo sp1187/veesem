@@ -58,11 +58,11 @@ void Uart::RunCycles(int cycles) {
   }
 }
 
-word_t Uart::GetControl() {
+Word Uart::GetControl() {
   return control_.raw;
 }
 
-void Uart::SetControl(word_t value) {
+void Uart::SetControl(Word value) {
   bool old_tx_enable = control_.tx_enable;
   control_.raw = value;
 
@@ -84,11 +84,11 @@ void Uart::SetControl(word_t value) {
   }
 }
 
-word_t Uart::GetStatus() {
+Word Uart::GetStatus() {
   return status_.raw;
 }
 
-void Uart::SetStatus(word_t value) {
+void Uart::SetStatus(Word value) {
   status_.raw &= ~(value & UartStatus::ClearMask);
 
   bool rx_irq_active = control_.rx_irq_enable && status_.rx_ready;
@@ -101,27 +101,27 @@ void Uart::SoftReset() {
   // TODO: what needs to be reset here?
 }
 
-word_t Uart::GetBaudLo() {
+Word Uart::GetBaudLo() {
   return baud_lo_;
 }
 
-void Uart::SetBaudLo(word_t value) {
+void Uart::SetBaudLo(Word value) {
   baud_lo_ = value & 0xFF;
 }
 
-word_t Uart::GetBaudHi() {
+Word Uart::GetBaudHi() {
   return baud_hi_;
 }
 
-void Uart::SetBaudHi(word_t value) {
+void Uart::SetBaudHi(Word value) {
   baud_hi_ = value & 0xFF;
 }
 
-word_t Uart::GetTx() {
+Word Uart::GetTx() {
   return tx_buf_;
 }
 
-void Uart::Tx(word_t value) {
+void Uart::Tx(Word value) {
   tx_buf_ = value;
 
   if (control_.tx_enable && !status_.tx_busy) {
@@ -134,13 +134,13 @@ void Uart::Tx(word_t value) {
   }
 }
 
-word_t Uart::Rx() {
+Word Uart::Rx() {
   status_.rx_full = false;
 
   return rx_buf_;
 }
 
-word_t Uart::PeekRx() {
+Word Uart::PeekRx() {
   return rx_buf_;
 }
 

@@ -8,7 +8,7 @@
 #define SR (reinterpret_cast<StatusReg&>(regs_[REG_SR]))
 
 union StatusReg {
-  word_t raw;
+  Word raw;
 
   Bitfield<10, 6> ds;
   Bitfield<9, 1> n;
@@ -19,7 +19,7 @@ union StatusReg {
 };
 
 union Instruction {
-  word_t raw;
+  Word raw;
 
   Bitfield<12, 4> op0;
   Bitfield<9, 3> rd;
@@ -149,7 +149,7 @@ int Cpu::Step() {
         }
       case 1:  // call
       {
-        const addr_t new_pc = (iw.imm6 << 16) | ReadWordFromPc();
+        const Addr new_pc = (iw.imm6 << 16) | ReadWordFromPc();
         PushWord(regs_[REG_SP], regs_[REG_PC]);
         PushWord(regs_[REG_SP], regs_[REG_SR]);
         SetCsPc(new_pc);
@@ -157,7 +157,7 @@ int Cpu::Step() {
       }
       case 2:  // goto or muls us
         if (iw.rd == REG_PC) {
-          const addr_t new_pc = (iw.imm6 << 16) | ReadWordFromPc();
+          const Addr new_pc = (iw.imm6 << 16) | ReadWordFromPc();
           SetCsPc(new_pc);
           return 5;
         }
@@ -167,10 +167,10 @@ int Cpu::Step() {
           const int n = iw.muls_n ? iw.muls_n : 16;
           int64_t sum = 0;
 
-          word_t old_val1 = 0;
+          Word old_val1 = 0;
           for (int i = 0; i < n; i++) {
-            word_t val1 = bus_.ReadWord(regs_[iw.rd]);
-            word_t val2 = bus_.ReadWord(regs_[iw.rs]);
+            Word val1 = bus_.ReadWord(regs_[iw.rd]);
+            Word val2 = bus_.ReadWord(regs_[iw.rs]);
             sum += val1 * static_cast<int16_t>(val2);
 
             if (fir_mov_) {
@@ -241,10 +241,10 @@ int Cpu::Step() {
           const int n = iw.muls_n ? iw.muls_n : 16;
           int64_t sum = 0;
 
-          word_t old_val1 = 0;
+          Word old_val1 = 0;
           for (int i = 0; i < n; i++) {
-            word_t val1 = bus_.ReadWord(regs_[iw.rd]);
-            word_t val2 = bus_.ReadWord(regs_[iw.rs]);
+            Word val1 = bus_.ReadWord(regs_[iw.rd]);
+            Word val2 = bus_.ReadWord(regs_[iw.rs]);
             sum += static_cast<int16_t>(val1) * static_cast<int16_t>(val2);
 
             if (fir_mov_) {
@@ -272,14 +272,14 @@ int Cpu::Step() {
         if (iw.rd == REG_PC) {
           const bool do_branch = CheckBranch(iw.op0);
           if (do_branch) {
-            const addr_t cs_pc = GetCsPc();
+            const Addr cs_pc = GetCsPc();
             SetCsPc(cs_pc + iw.imm6);
           }
           return do_branch ? 4 : 2;
         } else {
-          const addr_t addr = regs_[REG_BP] + iw.imm6;
+          const Addr addr = regs_[REG_BP] + iw.imm6;
           if (iw.op0 != ALUOP_STORE) {
-            const word_t value = bus_.ReadWord(addr);
+            const Word value = bus_.ReadWord(addr);
             AluOp(regs_[iw.rd], regs_[iw.rd], value, iw.op0, iw.rd != REG_PC);
           } else {
             bus_.WriteWord(addr, regs_[iw.rd]);
@@ -290,7 +290,7 @@ int Cpu::Step() {
         if (iw.rd == REG_PC) {
           const bool do_branch = CheckBranch(iw.op0);
           if (do_branch) {
-            const addr_t cs_pc = GetCsPc();
+            const Addr cs_pc = GetCsPc();
             SetCsPc(cs_pc - iw.imm6);
           }
           return do_branch ? 4 : 2;
@@ -332,7 +332,7 @@ int Cpu::Step() {
         return 2 * n + 4;
       }
       case 24 ... 31: {
-        addr_t addr = 0;
+        Addr addr = 0;
         switch (iw.op1n) {
           case 24:
             addr = regs_[iw.rs];
@@ -367,7 +367,7 @@ int Cpu::Step() {
         }
 
         if (iw.op0 != ALUOP_STORE) {
-          word_t value = bus_.ReadWord(addr);
+          Word value = bus_.ReadWord(addr);
           AluOp(regs_[iw.rd], regs_[iw.rd], value, iw.op0, iw.rd != REG_PC);
         } else {
           bus_.WriteWord(addr, regs_[iw.rd]);
@@ -386,8 +386,8 @@ int Cpu::Step() {
       }
       case 33:  // imm16
       {
-        const word_t rs_val = regs_[iw.rs];
-        const word_t imm = ReadWordFromPc();
+        const Word rs_val = regs_[iw.rs];
+        const Word imm = ReadWordFromPc();
 
         if (iw.op0 != ALUOP_STORE) {
           AluOp(regs_[iw.rd], rs_val, imm, iw.op0, iw.rd != REG_PC);
@@ -398,11 +398,11 @@ int Cpu::Step() {
       }
       case 34:  // [imm16]
       {
-        const word_t rs_val = regs_[iw.rs];
-        const word_t addr = ReadWordFromPc();
+        const Word rs_val = regs_[iw.rs];
+        const Word addr = ReadWordFromPc();
 
         if (iw.op0 != ALUOP_STORE) {
-          const word_t value = bus_.ReadWord(addr);
+          const Word value = bus_.ReadWord(addr);
           AluOp(regs_[iw.rd], rs_val, value, iw.op0, iw.rd != REG_PC);
         } else {
           die("Attempts to store using [imm16] read mode");
@@ -411,12 +411,12 @@ int Cpu::Step() {
       }
       case 35:  // [imm16] store
       {
-        const word_t rs_val = regs_[iw.rs];
-        const word_t rd_val = regs_[iw.rd];
-        const word_t addr = ReadWordFromPc();
+        const Word rs_val = regs_[iw.rs];
+        const Word rd_val = regs_[iw.rd];
+        const Word addr = ReadWordFromPc();
 
         if (iw.op0 != ALUOP_STORE) {
-          word_t result = 0;
+          Word result = 0;
           AluOp(result, rs_val, rd_val, iw.op0, iw.rd != REG_PC);
           bus_.WriteWord(addr, result);
         } else {
@@ -431,7 +431,7 @@ int Cpu::Step() {
         const int n = (iw.opn & 0x03) + 1;
 
         const int shift = sext<20>((regs_[iw.rs] << 4) | cur_sb) >> n;
-        const word_t value = (shift >> 4) & 0xffff;
+        const Word value = (shift >> 4) & 0xffff;
         cur_sb = shift & 0xf;
 
         if (iw.op0 != ALUOP_STORE) {
@@ -447,7 +447,7 @@ int Cpu::Step() {
         const int n = (iw.opn & 0x03) + 1;
 
         const unsigned shift = ((cur_sb << 16) | regs_[iw.rs]) << n;
-        const word_t value = shift & 0xffff;
+        const Word value = shift & 0xffff;
         cur_sb = (shift >> 16) & 0xf;
 
         if (iw.op0 != ALUOP_STORE) {
@@ -463,7 +463,7 @@ int Cpu::Step() {
         const int n = (iw.opn & 0x03) + 1;
 
         const unsigned shift = ((regs_[iw.rs] << 4) | cur_sb) >> n;
-        const word_t value = (shift >> 4) & 0xffff;
+        const Word value = (shift >> 4) & 0xffff;
         cur_sb = shift & 0xf;
 
         if (iw.op0 != ALUOP_STORE) {
@@ -479,7 +479,7 @@ int Cpu::Step() {
         const int n = (iw.opn & 0x03) + 1;
 
         const unsigned shift = rotl<20>((cur_sb << 16) | regs_[iw.rs], n);
-        const word_t value = shift & 0xffff;
+        const Word value = shift & 0xffff;
         cur_sb = (shift >> 16) & 0xf;
 
         if (iw.op0 != ALUOP_STORE) {
@@ -495,7 +495,7 @@ int Cpu::Step() {
         const int n = (iw.opn & 0x03) + 1;
 
         const unsigned shift = rotr<20>((regs_[iw.rs] << 4) | cur_sb, n);
-        const word_t value = (shift >> 4) & 0xffff;
+        const Word value = (shift >> 4) & 0xffff;
         cur_sb = shift & 0xf;
 
         if (iw.op0 != ALUOP_STORE) {
@@ -508,7 +508,7 @@ int Cpu::Step() {
       case 56 ... 63:  // [A6]
       {
         if (iw.op0 != ALUOP_STORE) {
-          const word_t value = bus_.ReadWord(iw.imm6);
+          const Word value = bus_.ReadWord(iw.imm6);
           AluOp(regs_[iw.rd], regs_[iw.rd], value, iw.op0, iw.rd != REG_PC);
         } else {
           bus_.WriteWord(iw.imm6, regs_[iw.rd]);
@@ -541,7 +541,7 @@ void Cpu::UpdateNzsc(unsigned result, int result_signed) {
   SR.c = result & 0x10000;
 }
 
-void Cpu::AluOp(word_t& save, word_t val1, word_t val2, int alu_op, bool update_flags) {
+void Cpu::AluOp(Word& save, Word val1, Word val2, int alu_op, bool update_flags) {
   switch (alu_op) {
     case ALUOP_ADD:
     case ALUOP_ADC: {
@@ -573,21 +573,21 @@ void Cpu::AluOp(word_t& save, word_t val1, word_t val2, int alu_op, bool update_
       return;
     }
     case ALUOP_XOR: {
-      const word_t result = val1 ^ val2;
+      const Word result = val1 ^ val2;
       if (update_flags)
         UpdateNz(result);
       save = result;
       return;
     }
     case ALUOP_LOAD: {
-      const word_t result = val2;
+      const Word result = val2;
       if (update_flags)
         UpdateNz(result);
       save = result;
       return;
     }
     case ALUOP_OR: {
-      const word_t result = val1 | val2;
+      const Word result = val1 | val2;
       if (update_flags)
         UpdateNz(result);
       save = result;
@@ -595,7 +595,7 @@ void Cpu::AluOp(word_t& save, word_t val1, word_t val2, int alu_op, bool update_
     }
     case ALUOP_AND:
     case ALUOP_TEST: {
-      const word_t result = val1 & val2;
+      const Word result = val1 & val2;
       if (update_flags)
         UpdateNz(result);
       if (alu_op != ALUOP_TEST)
@@ -644,35 +644,35 @@ bool Cpu::CheckBranch(int branchop) {
   }
 }
 
-inline word_t Cpu::ReadWordFromPc() {
-  const addr_t cs_pc = GetCsPc();
-  const word_t val = bus_.ReadWord(cs_pc);
+inline Word Cpu::ReadWordFromPc() {
+  const Addr cs_pc = GetCsPc();
+  const Word val = bus_.ReadWord(cs_pc);
   SetCsPc(cs_pc + 1);
 
   return val;
 }
 
-inline void Cpu::PushWord(word_t& sp, word_t val) {
+inline void Cpu::PushWord(Word& sp, Word val) {
   bus_.WriteWord(sp--, val);
 }
 
-inline word_t Cpu::PopWord(word_t& sp) {
+inline Word Cpu::PopWord(Word& sp) {
   return bus_.ReadWord(++sp);
 }
 
-word_t Cpu::GetDs() {
+Word Cpu::GetDs() {
   return SR.ds;
 }
 
-void Cpu::SetDs(word_t val) {
+void Cpu::SetDs(Word val) {
   SR.ds = val;
 }
 
-addr_t Cpu::GetCsPc() {
+Addr Cpu::GetCsPc() {
   return (SR.cs << 16) | regs_[REG_PC];
 }
 
-inline void Cpu::SetCsPc(addr_t val) {
+inline void Cpu::SetCsPc(Addr val) {
   regs_[REG_PC] = val & 0xffff;
   SR.cs = val >> 16;
 }

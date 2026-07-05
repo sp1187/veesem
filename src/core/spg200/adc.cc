@@ -68,9 +68,9 @@ void Adc::SetControl(uint16_t value) {
   }
 }
 
-word_t Adc::GetControl() {
+Word Adc::GetControl() {
   return ctrl_.raw | status_.raw;
 }
-word_t Adc::GetData() {
+Word Adc::GetData() {
   return data_.raw;
 }

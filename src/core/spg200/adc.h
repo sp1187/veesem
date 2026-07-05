@@ -12,14 +12,14 @@ public:
   void Reset();
   void RunCycles(int cycles);
 
-  void SetControl(word_t value);
-  word_t GetControl();
+  void SetControl(Word value);
+  Word GetControl();
 
-  word_t GetData();
+  Word GetData();
 
 private:
   union AdcControl {
-    word_t raw;
+    Word raw;
     Bitfield<12, 1> request;
     Bitfield<10, 1> req_auto_8k;
     Bitfield<9, 1> int_enable;
@@ -29,18 +29,18 @@ private:
     Bitfield<1, 1> cs;
     Bitfield<0, 1> enabled;
 
-    static const word_t WriteMask = 0x177f;
+    static const Word WriteMask = 0x177f;
   } ctrl_;
 
   union AdcControlStatus {
-    word_t raw;
+    Word raw;
     Bitfield<13, 1> irq;
 
-    static const word_t WriteMask = 0x2000;
+    static const Word WriteMask = 0x2000;
   } status_;
 
   union AdcData {
-    word_t raw;
+    Word raw;
     Bitfield<15, 1> ready;
     Bitfield<0, 10> data;
   } data_;

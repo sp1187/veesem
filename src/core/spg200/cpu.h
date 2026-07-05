@@ -18,24 +18,24 @@ public:
 
   void Reset();
 
-  word_t GetDs();
-  void SetDs(word_t val);
-  addr_t GetCsPc();
+  Word GetDs();
+  void SetDs(Word val);
+  Addr GetCsPc();
 
   void PrintRegisterState();
 
 private:
-  void AluOp(word_t& save, word_t val1, word_t val2, int alu_op, bool update_flags);
+  void AluOp(Word& save, Word val1, Word val2, int alu_op, bool update_flags);
   void UpdateNz(uint32_t result);
   void UpdateNzsc(uint32_t result, int32_t result_signed);
   bool CheckBranch(int branchop);
   bool CheckInterrupts();
 
-  word_t ReadWordFromPc();
-  void PushWord(word_t& sp, word_t val);
-  word_t PopWord(word_t& sp);
+  Word ReadWordFromPc();
+  void PushWord(Word& sp, Word val);
+  Word PopWord(Word& sp);
 
-  void SetCsPc(addr_t val);
+  void SetCsPc(Addr val);
 
   BusInterface& bus_;
 

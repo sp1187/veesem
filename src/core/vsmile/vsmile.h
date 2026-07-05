@@ -13,9 +13,9 @@ class IoIrq;
 
 class VSmile {
 public:
-  using CartRomType = std::array<word_t, 4 * 1024 * 1024>;
-  using SysRomType = std::array<word_t, 1024 * 1024>;
-  using ArtNvramType = std::array<word_t, 128 * 1024>;
+  using CartRomType = std::array<Word, 4 * 1024 * 1024>;
+  using SysRomType = std::array<Word, 1024 * 1024>;
+  using ArtNvramType = std::array<Word, 128 * 1024>;
 
   enum class CartType {
     STANDARD,
@@ -37,8 +37,8 @@ public:
   std::span<uint16_t> GetAudio();
   const ArtNvramType* GetArtNvram();
 
-  word_t ReadFromMemory(addr_t addr);
-  void WriteToMemory(addr_t addr, word_t value);
+  Word ReadFromMemory(Addr addr);
+  void WriteToMemory(Addr addr, Word value);
 
   void SetPpuViewSettings(PpuViewSettings& ppu_view_settings);
 
@@ -63,25 +63,25 @@ private:
     unsigned GetAdc2() override;
     unsigned GetAdc3() override;
 
-    word_t GetPortA() override;
-    void SetPortA(word_t value, word_t mask) override;
-    word_t GetPortB() override;
-    void SetPortB(word_t value, word_t mask) override;
+    Word GetPortA() override;
+    void SetPortA(Word value, Word mask) override;
+    Word GetPortB() override;
+    void SetPortB(Word value, Word mask) override;
 
-    word_t GetPortC() override;
-    void SetPortC(word_t value, word_t mask) override;
+    Word GetPortC() override;
+    void SetPortC(Word value, Word mask) override;
 
     void TxUart(uint8_t value) override;
     void RxUartDone() override;
 
-    word_t ReadRomCsb(addr_t addr) override;
-    void WriteRomCsb(addr_t addr, word_t value) override;
-    word_t ReadCsb1(addr_t addr) override;
-    void WriteCsb1(addr_t addr, word_t value) override;
-    word_t ReadCsb2(addr_t addr) override;
-    void WriteCsb2(addr_t addr, word_t value) override;
-    word_t ReadCsb3(addr_t addr) override;
-    void WriteCsb3(addr_t addr, word_t value) override;
+    Word ReadRomCsb(Addr addr) override;
+    void WriteRomCsb(Addr addr, Word value) override;
+    Word ReadCsb1(Addr addr) override;
+    void WriteCsb1(Addr addr, Word value) override;
+    Word ReadCsb2(Addr addr) override;
+    void WriteCsb2(Addr addr, Word value) override;
+    Word ReadCsb3(Addr addr) override;
+    void WriteCsb3(Addr addr, Word value) override;
 
     const unsigned region_code_;
     const bool vtech_logo_;

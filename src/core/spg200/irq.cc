@@ -2,7 +2,7 @@
 
 #include "cpu.h"
 
-Irq::Irq(Cpu& cpu) : cpu_(cpu){};
+Irq::Irq(Cpu& cpu) : cpu_(cpu) {};
 
 void Irq::Reset() {
   io_irq_ctrl_.raw = 0;
@@ -12,11 +12,11 @@ void Irq::Reset() {
   spu_channel_active_ = false;
 }
 
-word_t Irq::GetIoIrqControl() {
+Word Irq::GetIoIrqControl() {
   return io_irq_ctrl_.raw;
 }
 
-void Irq::SetIoIrqControl(word_t value) {
+void Irq::SetIoIrqControl(Word value) {
   io_irq_ctrl_.raw = value;
   UpdateIrq2();
   UpdateIrq3();
@@ -25,11 +25,11 @@ void Irq::SetIoIrqControl(word_t value) {
   UpdateIrq7();
 }
 
-word_t Irq::GetIoIrqStatus() {
+Word Irq::GetIoIrqStatus() {
   return io_irq_status_.raw;
 }
 
-void Irq::ClearIoIrqStatus(word_t value) {
+void Irq::ClearIoIrqStatus(Word value) {
   io_irq_status_.raw &= ~value;
   UpdateIrq2();
   UpdateIrq3();
@@ -38,11 +38,11 @@ void Irq::ClearIoIrqStatus(word_t value) {
   UpdateIrq7();
 }
 
-word_t Irq::GetFiqSelect() {
+Word Irq::GetFiqSelect() {
   return fiq_select_;
 }
 
-void Irq::SetFiqSelect(word_t value) {
+void Irq::SetFiqSelect(Word value) {
   fiq_select_ = value & 7;
   UpdateFiq();
 }
@@ -199,5 +199,5 @@ void Irq::UpdateFiq() {
 }
 
 Irq::IoInterrupts Irq::GetActiveIoIrqs() const {
-  return {static_cast<word_t>(io_irq_ctrl_.raw & io_irq_status_.raw)};
+  return {static_cast<Word>(io_irq_ctrl_.raw & io_irq_status_.raw)};
 }

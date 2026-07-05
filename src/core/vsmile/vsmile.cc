@@ -68,11 +68,11 @@ const VSmile::ArtNvramType* VSmile::GetArtNvram() {
   return io_.art_nvram_.get();
 }
 
-word_t VSmile::ReadFromMemory(addr_t addr) {
+Word VSmile::ReadFromMemory(Addr addr) {
   return spg200_.PeekWord(addr);
 }
 
-void VSmile::WriteToMemory(addr_t addr, word_t value) {
+void VSmile::WriteToMemory(Addr addr, Word value) {
   spg200_.WriteWord(addr, value);
 }
 
@@ -137,25 +137,25 @@ unsigned VSmile::Io::GetAdc3() {
   return 0x0;
 }
 
-word_t VSmile::Io::GetPortA() {
+Word VSmile::Io::GetPortA() {
   return 0x0;
 }
 
-word_t VSmile::Io::GetPortB() {
+Word VSmile::Io::GetPortB() {
   return (!off_button_pressed_ << 7) | (!on_button_pressed_ << 6) | (!restart_button_pressed_ << 3);
 }
 
-word_t VSmile::Io::GetPortC() {
-  word_t val = region_code_ | (vtech_logo_ << 4) | 0x0020 | (cts_[0] << 8) | (cts_[1] << 9) |
-               (rts_[0] << 10) | (rts_[1] << 12) | 0x6000;
+Word VSmile::Io::GetPortC() {
+  Word val = region_code_ | (vtech_logo_ << 4) | 0x0020 | (cts_[0] << 8) | (cts_[1] << 9) |
+             (rts_[0] << 10) | (rts_[1] << 12) | 0x6000;
   return val;
 }
 
-void VSmile::Io::SetPortA(word_t value, word_t mask) {}
+void VSmile::Io::SetPortA(Word value, Word mask) {}
 
-void VSmile::Io::SetPortB(word_t value, word_t mask) {}
+void VSmile::Io::SetPortB(Word value, Word mask) {}
 
-void VSmile::Io::SetPortC(word_t value, word_t mask) {
+void VSmile::Io::SetPortC(Word value, Word mask) {
   if (mask & 0x0100) {
     cts_[0] = (value & 0x0100);
     joy_.SetCts(cts_[0]);
@@ -165,19 +165,19 @@ void VSmile::Io::SetPortC(word_t value, word_t mask) {
   }
 }
 
-word_t VSmile::Io::ReadRomCsb(addr_t addr) {
+Word VSmile::Io::ReadRomCsb(Addr addr) {
   return (*cart_rom_)[addr];
 }
 
-void VSmile::Io::WriteRomCsb(addr_t addr, word_t value) {}
+void VSmile::Io::WriteRomCsb(Addr addr, Word value) {}
 
-word_t VSmile::Io::ReadCsb1(addr_t addr) {
+Word VSmile::Io::ReadCsb1(Addr addr) {
   return (*cart_rom_)[addr + 0x100000];
 }
 
-void VSmile::Io::WriteCsb1(addr_t addr, word_t value) {}
+void VSmile::Io::WriteCsb1(Addr addr, Word value) {}
 
-word_t VSmile::Io::ReadCsb2(addr_t addr) {
+Word VSmile::Io::ReadCsb2(Addr addr) {
   if (cart_type_ == CartType::ART_STUDIO) {
     // In-cartridge ROM used for the drawing area buffer in V.Smile Art Studio
     return (*art_nvram_)[addr & 0x1ffff];
@@ -189,17 +189,17 @@ word_t VSmile::Io::ReadCsb2(addr_t addr) {
   return (*cart_rom_)[addr + 0x200000];
 }
 
-void VSmile::Io::WriteCsb2(addr_t addr, word_t value) {
+void VSmile::Io::WriteCsb2(Addr addr, Word value) {
   if (cart_type_ == CartType::ART_STUDIO) {
     (*art_nvram_)[addr & 0x1ffff] = value;
   }
 }
 
-word_t VSmile::Io::ReadCsb3(addr_t addr) {
+Word VSmile::Io::ReadCsb3(Addr addr) {
   return (*sys_rom_)[addr];
 }
 
-void VSmile::Io::WriteCsb3(addr_t addr, word_t value) {}
+void VSmile::Io::WriteCsb3(Addr addr, Word value) {}
 
 void VSmile::Io::TxUart(uint8_t value) {
   if (cts_[0])

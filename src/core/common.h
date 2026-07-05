@@ -12,8 +12,8 @@
   abort();
 }
 
-using word_t = uint16_t;
-using addr_t = uint32_t;  // should really be 22-bit
+using Word = uint16_t;
+using Addr = uint32_t;  // should really be 22-bit
 
 template <std::size_t Bits>
 inline int sext(unsigned value) {
@@ -101,28 +101,28 @@ private:
 
 template <std::size_t Position, std::size_t Size>
 struct Bitfield {
-  static constexpr word_t Maximum = (1 << Size) - 1;
-  static constexpr word_t Mask = Maximum << Position;
+  static constexpr Word Maximum = (1 << Size) - 1;
+  static constexpr Word Mask = Maximum << Position;
   using Type = typename std::conditional_t<Size == 1, std::enable_if<true, bool>,
                                            std::enable_if<true, unsigned>>::type;
-  word_t value;
+  Word value;
 
   inline __attribute__((always_inline)) constexpr operator Type() const {
     return static_cast<Type>((value >> Position) & Maximum);
   }
 
   inline __attribute__((always_inline)) constexpr Bitfield& operator=(const Type v) {
-    value = (value & ~Mask) | ((static_cast<word_t>(v) & Maximum) << Position);
+    value = (value & ~Mask) | ((static_cast<Word>(v) & Maximum) << Position);
     return *this;
   }
 
   inline __attribute__((always_inline)) constexpr Bitfield& operator+=(const Type v) {
-    value = (value & ~Mask) | ((static_cast<word_t>(*this + v) & Maximum) << Position);
+    value = (value & ~Mask) | ((static_cast<Word>(*this + v) & Maximum) << Position);
     return *this;
   }
 
   inline __attribute__((always_inline)) constexpr Bitfield& operator-=(const Type v) {
-    value = (value & ~Mask) | ((static_cast<word_t>(*this - v) & Maximum) << Position);
+    value = (value & ~Mask) | ((static_cast<Word>(*this - v) & Maximum) << Position);
     return *this;
   }
 

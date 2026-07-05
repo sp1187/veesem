@@ -13,21 +13,21 @@ public:
 
   void Reset();
 
-  word_t GetControl();
-  void SetControl(word_t value);
+  Word GetControl();
+  void SetControl(Word value);
 
-  word_t ReadWord(addr_t addr);
-  void WriteWord(addr_t addr, word_t value);
+  Word ReadWord(Addr addr);
+  void WriteWord(Addr addr, Word value);
 
 private:
   union ExternalMemControl {
-    word_t raw;
+    Word raw;
     Bitfield<8, 4> ram_decode;
     Bitfield<6, 2> address_decode;
     Bitfield<3, 3> bus_arbiter;
     Bitfield<1, 2> wait_state;
 
-    static const word_t WriteMask = 0x0ffe;
+    static const Word WriteMask = 0x0ffe;
   } ctrl_;
 
   Spg200Io& io_;

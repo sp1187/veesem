@@ -80,7 +80,7 @@ void Spg200::SetExt2Irq(bool value) {
   irq_.SetExt2Irq(value);
 }
 
-word_t Spg200::ReadWord(addr_t addr) {
+Word Spg200::ReadWord(Addr addr) {
   addr = addr & 0x3fffff;
   switch (addr) {
     case 0 ... 0x27ff:
@@ -352,7 +352,7 @@ word_t Spg200::ReadWord(addr_t addr) {
   }
 };
 
-void Spg200::WriteWord(addr_t addr, word_t value) {
+void Spg200::WriteWord(Addr addr, Word value) {
   addr = addr & 0x3fffff;
   switch (addr) {
     case 0 ... 0x27ff:
@@ -721,18 +721,18 @@ void Spg200::WriteWord(addr_t addr, word_t value) {
   }
 }
 
-word_t Spg200::PeekWord(addr_t addr) {
+Word Spg200::PeekWord(Addr addr) {
   if (addr == 0x3d36) {
     return uart_.PeekRx();
   }
   return ReadWord(addr);
 }
 
-word_t Spg200::GetSystemControl() {
+Word Spg200::GetSystemControl() {
   return system_ctrl_.raw;
 }
 
-void Spg200::SetSystemControl(word_t value) {
+void Spg200::SetSystemControl(Word value) {
   system_ctrl_.raw = value & SystemControl::WriteMask;
   watchdog_.SetEnabled(system_ctrl_.watchdog_enable);
 }

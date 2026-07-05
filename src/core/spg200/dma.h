@@ -10,18 +10,18 @@ public:
 
   void Reset();
 
-  word_t GetSourceHi();
-  void SetSourceHi(word_t value);
-  word_t GetSourceLo();
-  void SetSourceLo(word_t value);
-  word_t GetLength();
-  void StartDma(word_t length);
-  word_t GetTarget();
-  void SetTarget(word_t value);
+  Word GetSourceHi();
+  void SetSourceHi(Word value);
+  Word GetSourceLo();
+  void SetSourceLo(Word value);
+  Word GetLength();
+  void StartDma(Word length);
+  Word GetTarget();
+  void SetTarget(Word value);
 
 private:
-  addr_t source_ = 0;
-  word_t target_ = 0;
-  word_t length_ = 0;
+  Addr source_ = 0;
+  Word target_ = 0;
+  Word length_ = 0;
   BusInterface& bus_;
 };

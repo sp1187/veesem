@@ -4,10 +4,10 @@
 
 class Random {
 public:
-  void Set(word_t value);
-  word_t Get();
+  void Set(Word value);
+  Word Get();
 
 private:
   void UpdateSeed();
-  word_t seed_ = 0;
+  Word seed_ = 0;
 };

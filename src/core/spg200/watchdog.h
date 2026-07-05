@@ -13,7 +13,7 @@ public:
 
   void SetEnabled(bool enabled);
 
-  void ClearTimer(word_t value);
+  void ClearTimer(Word value);
 
 private:
   Cpu& cpu_;

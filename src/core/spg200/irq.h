@@ -10,14 +10,14 @@ public:
 
   void Reset();
 
-  word_t GetIoIrqControl();
-  void SetIoIrqControl(word_t value);
+  Word GetIoIrqControl();
+  void SetIoIrqControl(Word value);
 
-  word_t GetIoIrqStatus();
-  void ClearIoIrqStatus(word_t value);
+  Word GetIoIrqStatus();
+  void ClearIoIrqStatus(Word value);
 
-  word_t GetFiqSelect();
-  void SetFiqSelect(word_t value);
+  Word GetFiqSelect();
+  void SetFiqSelect(Word value);
 
   void SetPpuIrq(bool val);
   void SetSpuChannelIrq(bool val);
@@ -41,7 +41,7 @@ private:
   Cpu& cpu_;
 
   union IoInterrupts {
-    word_t raw;
+    Word raw;
     Bitfield<14, 1> spi;
     Bitfield<13, 1> adc;
     Bitfield<12, 1> ext2;

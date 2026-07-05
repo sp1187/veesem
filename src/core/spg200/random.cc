@@ -2,10 +2,10 @@
 
 #include <cstdlib>
 
-void Random::Set(word_t value) {
+void Random::Set(Word value) {
   seed_ = value;
 }
-word_t Random::Get() {
+Word Random::Get() {
   return rand() & 0x7fff;
   // word_t value = seed;
   // update_seed();
