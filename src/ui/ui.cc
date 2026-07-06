@@ -122,6 +122,9 @@ static bool ImguiInit() {
   ImGui_ImplSDL2_InitForOpenGL(graphics_state.GetWindow(), graphics_state.GetGlContext());
   ImGui_ImplOpenGL2_Init();
 
+  ImGuiIO& io = ImGui::GetIO();
+  io.IniFilename = nullptr;
+
   return true;
 }
 
