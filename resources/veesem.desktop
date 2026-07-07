@@ -2,7 +2,7 @@
 Type=Application
 Name=veesem
 Icon=veesem
-Version=0.2
+Version=1.5
 Exec=veesem %f
 Comment=V.Smile emulator
 Comment[da]=V.Smile-emulator
